@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <title>CRUD Sederhana (HTML)</title>
   </head>
+  <link rel="stylesheet" href="style.css" />
   <body>
+    <div class="container"></div>
     <!-- Judul utama halaman -->
     <h1>Data Mahasiswa — CRUD Sederhana</h1>
 
@@ -93,14 +95,15 @@
         data.forEach((row, idx) => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
-          <td>${idx + 1}</td>
-          <td>${row.nama}</td>
-          <td>${row.nim}</td>
-          <td>
-            <button type="button" data-edit="${row.id}">Edit</button>
-            <button type="button" data-del="${row.id}">Hapus</button>
-          </td>
-        `;
+            <td>${idx + 1}</td>
+            <td>${row.nama}</td>
+           <td>${row.nim}</td>
+            <td>${row.jurusan}</td>
+            <td>
+       <button type="button" data-edit="${row.id}">Edit</button>
+      <button type="button" data-del="${row.id}">Hapus</button>
+       </td>
+`;
           tbody.appendChild(tr);
         });
       }
@@ -111,9 +114,11 @@
 
         const idVal = elId.value.trim();
         const nama = elNama.value.trim();
+        const jurusanVal = jurusan.value.trim(); //ini tambahannya
         const nim = elNim.value.trim();
 
-        if (!nama || !nim) return alert("Nama dan NIM wajib diisi.");
+        if (!nama || !nim || !jurusanVal)
+          return alert("Nama, NIM, dan Jurusan wajib diisi.");
 
         if (idVal) {
           // UPDATE DATA
@@ -122,10 +127,11 @@
           if (idx >= 0) {
             data[idx].nama = nama;
             data[idx].nim = nim;
+            data[idx].jurusan = jurusanVal;
           }
         } else {
           // CREATE DATA BARU
-          data.push({ id: autoId++, nama, nim });
+          data.push({ id: autoId++, nama, nim, jurusan: jurusanVal }); //ini
         }
 
         saveData(data); // Simpan data
@@ -154,6 +160,7 @@
             elId.value = item.id;
             elNama.value = item.nama;
             elNim.value = item.nim;
+            jurusan.value = item.jurusan || "";
             elNama.focus();
           }
         }
