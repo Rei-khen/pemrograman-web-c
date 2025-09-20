@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CRUD Sederhana (HTML)</title>
+  </head>
+  <link rel="stylesheet" href="style.css" />
+  <body>
+    <div class="container"></div>
+    <!-- Judul utama halaman -->
+    <h1>Data Mahasiswa — CRUD Sederhana</h1>
+
+    <!-- FORM INPUT MAHASISWA -->
+    <form id="form-mahasiswa" autocomplete="off">
+      <!-- Input Nama Mahasiswa -->
+      <div>
+        <label for="nama">Nama:</label>
+        <input type="text" id="nama" required placeholder="Masukkan nama" />
+      </div>
+
+      <!-- Input NIM Mahasiswa -->
+      <div>
+        <label for="nim">NIM:</label>
+        <input type="text" id="nim" required placeholder="Masukkan NIM" />
+      </div>
+
+      <!-- Input jurusan -->
+      <div>
+        <label for="jurusan">Jurusan:</label>
+        <input
+          type="text"
+          id="jurusan"
+          required
+          placeholder="Masukkan jurusan"
+        />
+      </div>
+
+      <!-- Hidden input untuk ID mahasiswa saat edit -->
+      <input type="hidden" id="id" />
+
+      <!-- Tombol Aksi Form -->
+      <div>
+        <button type="submit" id="btn-simpan">Simpan</button>
+        <button type="button" id="btn-reset">Reset</button>
+      </div>
+    </form>
+
+    <!-- cari berdasarkan nama -->
+    <h2>Cari nama</h2>
+    <div class="cari-nama-container">
+      <input type="cari nama" placeholder="cari nama" />
+      <button>cari</button>
+    </div>
+
+    <h2>filter data</h2>
+    <div class="filter-nama">
+      <label for="short">Urutkan berdasarkan : </label>
+      <select name="" id="short">
+        <option value="nama">nama</option>
+        <option value="nim">nim</option>
+        <option value="jurusan">jurusan</option>
+      </select>
+    </div>
+
+    <!-- Tabel untuk menampilkan data mahasiswa -->
+    <h2>Daftar Mahasiswa</h2>
+    <table border="1" cellpadding="5">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nama</th>
+          <th>NIM</th>
+          <th>Jurusan</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <!-- Baris tabel akan dirender melalui JavaScript -->
+      </tbody>
+    </table>
+
+    <!-- SCRIPT JAVASCRIPT CRUD -->
+    <script>
+      // ------------------- PERSISTENSI DATA -------------------
+      const STORAGE_KEY = "crud_mahasiswa"; // Key localStorage
+
+      // Load data dari localStorage, jika kosong kembalikan array kosong
+      const loadData = () =>
+        JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+      // Simpan array data ke localStorage
+      const saveData = (list) =>
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+
+      // ------------------- STATE -------------------
+      let data = loadData(); // Array data mahasiswa
+      console.log(data);
+      let autoId = data.reduce((m, o) => Math.max(m, o.id), 0) + 1; // Auto-increment ID
+
+      // ------------------- ELEMENT HTML -------------------
+      const form = document.getElementById("form-mahasiswa");
+      const elId = document.getElementById("id");
+      const elNama = document.getElementById("nama");
+      const jurusan = document.getElementById("jurusan"); //inisialisasi
+      const elNim = document.getElementById("nim");
+      const tbody = document.getElementById("tbody");
+      const btnReset = document.getElementById("btn-reset");
+
+      // ------------------- FUNGSI RENDER -------------------
+      function render() {
+        if (!Array.isArray(data)) data = [];
+        tbody.innerHTML = ""; // Kosongkan tabel sebelum render ulang
+        data.forEach((row, idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${row.nama}</td>
+           <td>${row.nim}</td>
+            <td>${row.jurusan}</td>
+            <td>
+       <button type="button" data-edit="${row.id}">Edit</button>
+      <button type="button" data-del="${row.id}">Hapus</button>
+       </td>
+`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ------------------- FORM SUBMIT (CREATE / UPDATE) -------------------
+      form.addEventListener("submit", (e) => {
+        e.preventDefault(); // Mencegah reload halaman
+
+        const idVal = elId.value.trim();
+        const nama = elNama.value.trim();
+        const jurusanVal = jurusan.value.trim(); //ini tambahannya
+        const nim = elNim.value.trim();
+
+        if (!nama || !nim || !jurusanVal)
+          return alert("Nama, NIM, dan Jurusan wajib diisi.");
+
+        if (idVal) {
+          // UPDATE DATA
+          const idNum = Number(idVal);
+          const idx = data.findIndex((x) => x.id === idNum);
+          if (idx >= 0) {
+            data[idx].nama = nama;
+            data[idx].nim = nim;
+            data[idx].jurusan = jurusanVal;
+          }
+        } else {
+          // CREATE DATA BARU
+          data.push({ id: autoId++, nama, nim, jurusan: jurusanVal }); //ini
+        }
+
+        saveData(data); // Simpan data
+        render(); // Render ulang tabel
+        form.reset(); // Reset form
+        elId.value = "";
+        elNama.focus(); // Fokus ke input nama
+      });
+
+      // ------------------- RESET FORM -------------------
+      btnReset.addEventListener("click", () => {
+        form.reset();
+        elId.value = "";
+        elNama.focus();
+      });
+
+      // ------------------- HANDLER TOMBOL EDIT / HAPUS -------------------
+      tbody.addEventListener("click", (e) => {
+        const editId = e.target.getAttribute("data-edit");
+        const delId = e.target.getAttribute("data-del");
+
+        if (editId) {
+          // EDIT DATA
+          const item = data.find((x) => x.id === Number(editId));
+          if (item) {
+            elId.value = item.id;
+            elNama.value = item.nama;
+            elNim.value = item.nim;
+            jurusan.value = item.jurusan || "";
+            elNama.focus();
+          }
+        }
+
+        if (delId) {
+          // DELETE DATA
+          const idNum = Number(delId);
+          if (confirm("Yakin hapus data ini?")) {
+            data = data.filter((x) => x.id !== idNum);
+            saveData(data);
+            render();
+          }
+        }
+      });
+
+      // ------------------- CARI BERDASARKAN NAMA -------------------
+      const searchInput = document.querySelector(".cari-nama-container input"); // ambil elemen input cari
+      const searchBtn = document.querySelector(".cari-nama-container button"); // ambil tombol cari
+
+      // fungsi untuk render data berdasarkan hasil pencarian
+      function renderFiltered(keyword) {
+        tbody.innerHTML = ""; // kosongkan tabel
+        const filtered = data.filter(
+          (row) => row.nama.toLowerCase().includes(keyword.toLowerCase()) // filter nama yang mengandung keyword
+        );
+        console.log("filtered = ", filtered);
+
+        // kalau tidak ada hasil, tampilkan pesan
+        if (filtered.length === 0) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td colspan="5">Data tidak ditemukan</td>`;
+          tbody.appendChild(tr);
+          return;
+        }
+
+        // render hasil pencarian
+        filtered.forEach((row, idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${row.nama}</td>
+            <td>${row.nim}</td>
+            <td>${row.jurusan}</td>
+            <td>
+              <button type="button" data-edit="${row.id}">Edit</button>
+              <button type="button" data-del="${row.id}">Hapus</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // event klik tombol cari
+      searchBtn.addEventListener("click", () => {
+        const keyword = searchInput.value.trim(); // ambil keyword
+        if (keyword) {
+          renderFiltered(keyword); // kalau ada keyword, render hasil filter
+        } else {
+          render(); // kalau kosong, render semua data
+        }
+      });
+
+      // event ketika user tekan "Enter" di input cari
+      searchInput.addEventListener("keyup", (e) => {
+        if (e.key === "Enter") {
+          searchBtn.click(); // trigger tombol cari
+        }
+      });
+
+      //fungsi short
+      const short = document.getElementById("short");
+      console.log(short.value);
+
+      // ------------------- INIT -------------------
+      render(); // Render tabel saat halaman pertama kali dibuka
+
+      fetch("http://localhost:3000/mahasiswa")
+        .then((response) => response.json())
+        .then((data) => console.log(data));
+    </script>
+  </body>
+</html>
