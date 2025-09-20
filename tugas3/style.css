@@ -6,7 +6,7 @@
 
 body {
   margin: 0;
-  padding: 20px;
+  padding: 50px;
   background: #f4f6f9;
   color: #333;
 }
@@ -138,42 +138,43 @@ td button[data-del]:hover {
   background: #c0392b;
 }
 
-/* cari nama */
-.cari-nama-container {
+/* ================================= */
+/* KONTROL PENCARIAN & PENYORTIRAN */
+/* ================================= */
+.controls-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: #fff;
-  padding: 10px;
+  padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
-  display: flex;
 }
 
-.cari-nama-container input {
-  flex: 2;
-  width: 100%;
-  padding: 8px 10px;
+.search-container {
+  display: flex;
+  flex: 1;
+  margin-right: 20px;
+}
+
+.search-container input {
+  flex: 1;
   border: 1px solid #ccc;
   border-radius: 5px;
-}
-
-.cari-nama-container button {
   padding: 8px 10px;
+}
+
+.search-container button {
+  margin-left: 5px;
+}
+
+.sort-container label {
+  display: inline;
+}
+
+.sort-container select {
+  padding: 8px 10px;
+  border-radius: 5px;
   border: 1px solid #ccc;
-}
-
-.filter-nama {
-  background: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  display: flex;
-}
-
-.filter-nama label {
-  select {
-    border: none; /* hilangkan border */
-    outline: none; /* hilangkan outline saat fokus */
-    background: transparent; /* opsional, biar lebih bersih */
-  }
 }
