@@ -178,3 +178,50 @@ td button[data-del]:hover {
   border-radius: 5px;
   border: 1px solid #ccc;
 }
+
+/* ================================= */
+/* KONTROL IMPOR & EKSPOR */
+/* ================================= */
+.file-controls {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.file-controls h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.file-controls button {
+  background: #27ae60;
+  color: #fff;
+}
+
+.file-controls button:hover {
+  background: #229954;
+}
+
+/* Menyembunyikan input file standar */
+input[type="file"] {
+  display: none;
+}
+
+/* Mengatur tampilan label input file sebagai tombol */
+.btn-custom {
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 5px;
+  background: #3498db;
+  color: #fff;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-custom:hover {
+  background: #2980b9;
+}

@@ -37,6 +37,7 @@
           <button type="button" id="btn-reset">Reset</button>
         </div>
       </form>
+
       <div class="controls-wrapper">
         <div class="search-container">
           <input
@@ -57,6 +58,18 @@
           </select>
         </div>
       </div>
+
+      <div class="file-controls">
+        <h3>Impor/Ekspor Data</h3>
+        <div>
+          <label for="file-upload" class="btn-custom"
+            >Unggah File (.xlsx, .csv)</label
+          >
+          <input type="file" id="file-upload" accept=".xlsx, .csv" />
+          <button id="download-btn">Unduh Data (CSV)</button>
+        </div>
+      </div>
+
       <h2>Daftar Mahasiswa</h2>
       <table border="1" cellpadding="5">
         <thead>
@@ -71,6 +84,9 @@
         <tbody id="tbody"></tbody>
       </table>
     </div>
+
+    <!-- script untuk manipulasi file excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <script>
       // KODE JAVASCRIPT DI SINI
@@ -251,6 +267,79 @@
         });
 
         render(sortedData); // Render tabel dengan data yang sudah disortir
+      });
+
+      // Tambahan elemen HTML untuk impor dan ekspor
+      const fileUpload = document.getElementById("file-upload");
+      const downloadBtn = document.getElementById("download-btn");
+
+      // ------------------- FUNGSI IMPOR DATA (UPLOAD) -------------------
+      fileUpload.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          try {
+            const data = new Uint8Array(event.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const newMahasiswa = XLSX.utils.sheet_to_json(sheet);
+
+            // Pastikan data memiliki format yang benar
+            const validData = newMahasiswa.map((item) => ({
+              id: autoId++, // Berikan ID baru
+              nama: item.Nama || "",
+              nim: item.NIM || "",
+              jurusan: item.Jurusan || "",
+            }));
+
+            // Tambahkan data baru ke data yang sudah ada
+            data.push(...validData);
+            saveData(data); // Simpan ke localStorage
+            render(); // Render ulang tabel
+            alert(`Berhasil mengimpor ${validData.length} data mahasiswa.`);
+          } catch (error) {
+            alert("Gagal mengimpor file. Pastikan format file benar.");
+            console.error(error);
+          }
+        };
+
+        reader.readAsArrayBuffer(file);
+      });
+
+      // ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) -------------------
+      downloadBtn.addEventListener("click", () => {
+        if (data.length === 0) {
+          alert("Tidak ada data untuk diunduh.");
+          return;
+        }
+
+        // Buat header CSV
+        let csvContent = "Nama,NIM,Jurusan\n";
+
+        // Tambahkan data
+        data.forEach((row) => {
+          csvContent += `"${row.nama}","${row.nim}","${row.jurusan}"\n`;
+        });
+
+        // Buat objek Blob
+        const blob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+
+        // Buat URL dan link unduhan
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "data_mahasiswa.csv");
+
+        // Memicu unduhan
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       });
 
       // ------------------- INIT -------------------
