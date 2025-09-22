@@ -310,36 +310,62 @@
         reader.readAsArrayBuffer(file);
       });
 
-      // ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) -------------------
-      downloadBtn.addEventListener("click", () => {
-        if (data.length === 0) {
-          alert("Tidak ada data untuk diunduh.");
-          return;
+      // ------------------- FUNGSI IMPOR DATA (UPLOAD) -------------------
+      fileUpload.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        const fileName = file.name;
+        const isCSV = fileName.endsWith(".csv");
+
+        reader.onload = (event) => {
+          try {
+            let newMahasiswa;
+            if (isCSV) {
+              // Logika untuk file CSV
+              const csvText = event.target.result;
+              const workbook = XLSX.read(csvText, { type: "string" });
+              const sheetName = workbook.SheetNames[0];
+              const sheet = workbook.Sheets[sheetName];
+              newMahasiswa = XLSX.utils.sheet_to_json(sheet);
+            } else {
+              // Logika untuk file XLSX
+              const data = new Uint8Array(event.target.result);
+              const workbook = XLSX.read(data, { type: "array" });
+              const sheetName = workbook.SheetNames[0];
+              const sheet = workbook.Sheets[sheetName];
+              newMahasiswa = XLSX.utils.sheet_to_json(sheet);
+            }
+
+            const validData = newMahasiswa.map((item) => {
+              return {
+                id: autoId++,
+                nama: item.Nama || item.nama || "",
+                nim: item.NIM || item.nim || "",
+                jurusan: item.Jurusan || item.jurusan || "",
+              };
+            });
+
+            // Tambahkan data baru ke data yang sudah ada
+            data.push(...validData);
+            saveData(data);
+            render();
+            alert(`Berhasil mengimpor ${validData.length} data mahasiswa.`);
+            return; // <-- Tambahkan baris ini
+          } catch (error) {
+            alert(
+              "Gagal mengimpor file. Pastikan format dan nama kolom file benar."
+            );
+            console.error(error);
+          }
+        };
+
+        if (isCSV) {
+          reader.readAsText(file);
+        } else {
+          reader.readAsArrayBuffer(file);
         }
-
-        // Buat header CSV
-        let csvContent = "Nama,NIM,Jurusan\n";
-
-        // Tambahkan data
-        data.forEach((row) => {
-          csvContent += `"${row.nama}","${row.nim}","${row.jurusan}"\n`;
-        });
-
-        // Buat objek Blob
-        const blob = new Blob([csvContent], {
-          type: "text/csv;charset=utf-8;",
-        });
-
-        // Buat URL dan link unduhan
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", "data_mahasiswa.csv");
-
-        // Memicu unduhan
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
       });
 
       // ------------------- INIT -------------------
