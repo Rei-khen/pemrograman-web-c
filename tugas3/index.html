@@ -67,6 +67,7 @@
           >
           <input type="file" id="file-upload" accept=".xlsx, .csv" />
           <button id="download-btn">Unduh Data (CSV)</button>
+          <button id="download-pdf-btn">Unduh Data (PDF)</button>
         </div>
       </div>
 
@@ -87,6 +88,10 @@
 
     <!-- script untuk manipulasi file excel -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <!-- script untuk mengunduh file pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
     <script>
       // KODE JAVASCRIPT DI SINI
@@ -364,6 +369,41 @@
       });
 
       // ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) (PDF)-------------------
+      const downloadPdfBtn = document.getElementById("download-pdf-btn");
+
+      downloadPdfBtn.addEventListener("click", () => {
+        if (data.length === 0) {
+          alert("Tidak ada data untuk diunduh.");
+          return;
+        }
+
+        // Inisialisasi objek jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Tambahkan judul ke PDF
+        doc.setFontSize(18);
+        doc.text("Tabel Data Mahasiswa", 14, 22);
+
+        // Siapkan data untuk tabel
+        const tableColumn = ["#", "Nama", "NIM", "Jurusan"];
+        const tableRows = [];
+
+        data.forEach((row, idx) => {
+          const rowData = [idx + 1, row.nama, row.nim, row.jurusan];
+          tableRows.push(rowData);
+        });
+
+        // Buat tabel menggunakan autoTable
+        doc.autoTable({
+          head: [tableColumn],
+          body: tableRows,
+          startY: 30, // Posisi awal tabel (setelah judul)
+        });
+
+        // Simpan file PDF
+        doc.save("data_mahasiswa.pdf");
+      });
 
       // ------------------- INIT -------------------
       render(); // Render tabel saat halaman pertama kali dibuka
