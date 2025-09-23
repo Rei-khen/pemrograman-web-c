@@ -61,6 +61,24 @@ input[type="text"]:focus {
   outline: none;
 }
 
+/* Tambahkan 'select' pada selector yang sudah ada */
+input[type="text"],
+select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff; /* Menjamin background putih */
+  font-size: 14px; /* Menyamakan ukuran font */
+}
+
+/* Tambahkan juga untuk efek focus */
+input[type="text"]:focus,
+select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
 /* ===== TOMBOL ===== */
 button {
   padding: 8px 14px;
