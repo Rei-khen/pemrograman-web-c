@@ -177,8 +177,30 @@
         const jurusanVal = jurusan.value.trim();
         const nim = elNim.value.trim();
 
-        if (!nama || !nim || !jurusanVal)
+        if (!nama || !nim || jurusanVal === "" || jurusanVal === null) {
           return alert("Nama, NIM, dan Jurusan wajib diisi.");
+        }
+
+        // LOGIKA VALIDASI PENCEGAHAN NIM DUPLIKAT
+        let isNIMExist;
+        if (idVal) {
+          // Mode UPDATE: Cek apakah NIM sudah ada di data lain (kecuali data yang sedang diedit)
+          isNIMExist = data.some(
+            (mahasiswa) =>
+              mahasiswa.nim === nim && mahasiswa.id !== Number(idVal)
+          );
+          if (isNIMExist) {
+            return alert("NIM sudah digunakan oleh mahasiswa lain.");
+          }
+        } else {
+          // Mode CREATE: Cek apakah NIM sudah ada di seluruh data
+          isNIMExist = data.some((mahasiswa) => mahasiswa.nim === nim);
+          if (isNIMExist) {
+            return alert(
+              "NIM sudah terdaftar. Silakan gunakan NIM yang berbeda."
+            );
+          }
+        }
 
         if (idVal) {
           // UPDATE DATA
