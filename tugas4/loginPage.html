@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Masuk - Login</title>
+    <link rel="stylesheet" href="styles/Login.css" />
+    <style>
+      /* Pastikan hanya kotak login yang tampil */
+      #register-box {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="form-box" id="login-box">
+        <h2>Masuk</h2>
+        <form id="login-form">
+          <div class="input-group">
+            <input type="email" id="login-email" placeholder="Email" required />
+          </div>
+          <div class="input-group">
+            <input
+              type="password"
+              id="login-password"
+              placeholder="Kata Sandi"
+              required
+            />
+          </div>
+          <button type="submit" class="btn primary">Masuk</button>
+        </form>
+        <p class="switch-link">
+          Belum punya akun?
+          <a href="registerPage.html">Daftar Sekarang</a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // JavaScript sederhana untuk menangani submit form Login
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          alert("Login berhasil! (Simulasi)");
+          // Di sini Anda akan mengarahkan pengguna ke halaman utama
+        });
+    </script>
+  </body>
+</html>
