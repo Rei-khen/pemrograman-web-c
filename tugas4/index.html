@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CRUD Sederhana (HTML)</title>
+  </head>
+  <link rel="stylesheet" href="style.css" />
+  <body>
+    <div class="container">
+      <h1>Data Mahasiswa — CRUD Sederhana</h1>
+
+      <form id="form-mahasiswa" autocomplete="off">
+        <div>
+          <label for="nama">Nama:</label>
+          <input type="text" id="nama" required placeholder="Masukkan nama" />
+        </div>
+
+        <div>
+          <label for="nim">NIM:</label>
+          <input type="text" id="nim" required placeholder="Masukkan NIM" />
+        </div>
+
+        <div>
+          <label for="jurusan">Jurusan:</label>
+          <select id="jurusan" required>
+            <option value="" disabled selected>--- Pilih Jurusan ---</option>
+            <option value="Teknik Sipil">Teknik Sipil</option>
+            <option value="Teknik Mesin">Teknik Mesin</option>
+            <option value="Teknik Perkapalan">Teknik Perkapalan</option>
+            <option value="Teknik Elektro">Teknik Elektro</option>
+            <option value="Arsitektur">Arsitektur</option>
+            <option value="Teknik Geologi">Teknik Geologi</option>
+            <option value="Teknik Industri">Teknik Industri</option>
+            <option value="Teknik Kelautan">Teknik Kelautan</option>
+            <option value="Teknik Sistem Perkapalan">
+              Teknik Sistem Perkapalan
+            </option>
+            <option value="Teknik Perencanaan Wilayah dan Kota">
+              Teknik Perencanaan Wilayah dan Kota
+            </option>
+            <option value="Teknik Pertambangan">Teknik Pertambangan</option>
+            <option value="Teknik Informatika">Teknik Informatika</option>
+            <option value="Teknik Lingkungan">Teknik Lingkungan</option>
+          </select>
+        </div>
+
+        <input type="hidden" id="id" />
+
+        <div>
+          <button type="submit" id="btn-simpan">Simpan</button>
+          <button type="button" id="btn-reset">Reset</button>
+        </div>
+      </form>
+
+      <div class="file-controls">
+        <h3>Impor/Ekspor Data</h3>
+        <div>
+          <label for="file-upload" class="btn-custom"
+            >Import File (.xlsx, .csv)</label
+          >
+          <input type="file" id="file-upload" accept=".xlsx, .csv" />
+          <button id="download-btn">Export Data (CSV)</button>
+          <button id="download-pdf-btn">Export Data (PDF)</button>
+        </div>
+      </div>
+
+      <div class="controls-wrapper">
+        <div class="search-container">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Cari nama, nim, atau jurusan..."
+          />
+          <button id="search-btn">Cari</button>
+          <button id="reset-filter-btn">Reset</button>
+        </div>
+
+        <div class="sort-container">
+          <label for="sort-select">Urutkan berdasarkan:</label>
+          <select id="sort-select">
+            <option value="nama">Nama</option>
+            <option value="nim">NIM</option>
+            <option value="jurusan">Jurusan</option>
+          </select>
+        </div>
+      </div>
+
+      <h2>Daftar Mahasiswa</h2>
+      <table border="1" cellpadding="5">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nama</th>
+            <th>NIM</th>
+            <th>Jurusan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- script untuk manipulasi file excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <!-- script untuk mengunduh file pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+      // KODE JAVASCRIPT DI SINI
+      // ------------------- PERSISTENSI DATA -------------------
+      const STORAGE_KEY = "crud_mahasiswa"; // Key localStorage
+
+      // Load data dari localStorage, jika kosong kembalikan array kosong
+      const loadData = () =>
+        JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+      // Simpan array data ke localStorage
+      const saveData = (list) =>
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+
+      // ------------------- STATE -------------------
+      let data = loadData(); // Array data mahasiswa utama
+      let autoId = data.reduce((m, o) => Math.max(m, o.id), 0) + 1; // Auto-increment ID
+
+      // ------------------- ELEMENT HTML -------------------
+      const form = document.getElementById("form-mahasiswa");
+      const elId = document.getElementById("id");
+      const elNama = document.getElementById("nama");
+      const jurusan = document.getElementById("jurusan");
+      const elNim = document.getElementById("nim");
+      const tbody = document.getElementById("tbody");
+      const btnReset = document.getElementById("btn-reset");
+
+      // Element untuk pencarian dan penyortiran
+      const searchInput = document.getElementById("search-input");
+      const searchBtn = document.getElementById("search-btn");
+      const resetFilterBtn = document.getElementById("reset-filter-btn");
+      const sortSelect = document.getElementById("sort-select");
+
+      // ------------------- FUNGSI RENDER UTAMA -------------------
+      // Sekarang fungsi render menerima parameter opsional
+      function render(listToRender = data) {
+        if (!Array.isArray(listToRender)) listToRender = [];
+        tbody.innerHTML = ""; // Kosongkan tabel sebelum render ulang
+
+        if (listToRender.length === 0) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td colspan="5">Data tidak ditemukan.</td>`;
+          tbody.appendChild(tr);
+          return;
+        }
+
+        listToRender.forEach((row, idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td>${row.nama}</td>
+      <td>${row.nim}</td>
+      <td>${row.jurusan}</td>
+      <td>
+        <button type="button" data-edit="${row.id}">Edit</button>
+        <button type="button" data-del="${row.id}">Hapus</button>
+      </td>
+    `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ------------------- FORM SUBMIT (CREATE / UPDATE) -------------------
+      form.addEventListener("submit", (e) => {
+        e.preventDefault(); // Mencegah reload halaman
+
+        const idVal = elId.value.trim();
+        const nama = elNama.value.trim();
+        const jurusanVal = jurusan.value.trim();
+        const nim = elNim.value.trim();
+
+        if (!nama || !nim || jurusanVal === "" || jurusanVal === null) {
+          return alert("Nama, NIM, dan Jurusan wajib diisi.");
+        }
+
+        // LOGIKA VALIDASI PENCEGAHAN NIM DUPLIKAT
+        let isNIMExist;
+        if (idVal) {
+          // Mode UPDATE: Cek apakah NIM sudah ada di data lain (kecuali data yang sedang diedit)
+          isNIMExist = data.some(
+            (mahasiswa) =>
+              mahasiswa.nim === nim && mahasiswa.id !== Number(idVal)
+          );
+          if (isNIMExist) {
+            return alert("NIM sudah digunakan oleh mahasiswa lain.");
+          }
+        } else {
+          // Mode CREATE: Cek apakah NIM sudah ada di seluruh data
+          isNIMExist = data.some((mahasiswa) => mahasiswa.nim === nim);
+          if (isNIMExist) {
+            return alert(
+              "NIM sudah terdaftar. Silakan gunakan NIM yang berbeda."
+            );
+          }
+        }
+
+        if (idVal) {
+          // UPDATE DATA
+          const idNum = Number(idVal);
+          const idx = data.findIndex((x) => x.id === idNum);
+          if (idx >= 0) {
+            data[idx].nama = nama;
+            data[idx].nim = nim;
+            data[idx].jurusan = jurusanVal;
+          }
+        } else {
+          // CREATE DATA BARU
+          data.push({ id: autoId++, nama, nim, jurusan: jurusanVal });
+        }
+
+        saveData(data); // Simpan data
+        render(); // Render ulang tabel dengan semua data
+        form.reset(); // Reset form
+        elId.value = "";
+        elNama.focus(); // Fokus ke input nama
+      });
+
+      // ------------------- RESET FORM -------------------
+      btnReset.addEventListener("click", () => {
+        form.reset();
+        elId.value = "";
+        elNama.focus();
+      });
+
+      // ------------------- HANDLER TOMBOL EDIT / HAPUS -------------------
+      tbody.addEventListener("click", (e) => {
+        const editId = e.target.getAttribute("data-edit");
+        const delId = e.target.getAttribute("data-del");
+
+        if (editId) {
+          // EDIT DATA
+          const item = data.find((x) => x.id === Number(editId));
+          if (item) {
+            elId.value = item.id;
+            elNama.value = item.nama;
+            elNim.value = item.nim;
+            jurusan.value = item.jurusan || "";
+            elNama.focus();
+          }
+        }
+
+        if (delId) {
+          // DELETE DATA
+          const idNum = Number(delId);
+          if (confirm("Yakin hapus data ini?")) {
+            data = data.filter((x) => x.id !== idNum);
+            saveData(data);
+            render();
+          }
+        }
+      });
+
+      // ------------------- FUNGSI & EVENT PENCARIAN -------------------
+      function filterData(keyword) {
+        const filteredData = data.filter((row) => {
+          // Gabungkan semua nilai yang bisa dicari
+          const searchableString =
+            `${row.nama} ${row.nim} ${row.jurusan}`.toLowerCase();
+          return searchableString.includes(keyword.toLowerCase());
+        });
+        render(filteredData);
+      }
+
+      // Event klik tombol cari
+      searchBtn.addEventListener("click", () => {
+        const keyword = searchInput.value.trim();
+        filterData(keyword);
+      });
+
+      // Event tekan "Enter" di input cari
+      searchInput.addEventListener("keyup", (e) => {
+        if (e.key === "Enter") {
+          filterData(searchInput.value.trim());
+        }
+      });
+
+      // Event klik tombol reset
+      resetFilterBtn.addEventListener("click", () => {
+        searchInput.value = ""; // Kosongkan input
+        render(); // Tampilkan semua data
+      });
+
+      // ------------------- FUNGSI & EVENT PENYORTIRAN -------------------
+      sortSelect.addEventListener("change", (e) => {
+        const sortBy = e.target.value;
+        const sortedData = [...data]; // Buat salinan array agar data asli tidak berubah
+
+        sortedData.sort((a, b) => {
+          // Sortir berdasarkan string (Nama, Jurusan) atau angka (NIM)
+          const valA = a[sortBy].toLowerCase();
+          const valB = b[sortBy].toLowerCase();
+
+          if (valA < valB) {
+            return -1;
+          }
+          if (valA > valB) {
+            return 1;
+          }
+          return 0;
+        });
+
+        render(sortedData); // Render tabel dengan data yang sudah disortir
+      });
+
+      // Tambahan elemen HTML untuk impor dan ekspor
+      const fileUpload = document.getElementById("file-upload");
+      const downloadBtn = document.getElementById("download-btn");
+
+      // ------------------- FUNGSI IMPOR DATA (UPLOAD) -------------------
+      fileUpload.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        const fileName = file.name;
+        const isCSV = fileName.endsWith(".csv");
+
+        reader.onload = (event) => {
+          try {
+            let newMahasiswa;
+            if (isCSV) {
+              // Logika untuk file CSV
+              const csvText = event.target.result;
+              const workbook = XLSX.read(csvText, { type: "string" });
+              const sheetName = workbook.SheetNames[0];
+              const sheet = workbook.Sheets[sheetName];
+              newMahasiswa = XLSX.utils.sheet_to_json(sheet);
+            } else {
+              // Logika untuk file XLSX
+              const data = new Uint8Array(event.target.result);
+              const workbook = XLSX.read(data, { type: "array" });
+              const sheetName = workbook.SheetNames[0];
+              const sheet = workbook.Sheets[sheetName];
+              newMahasiswa = XLSX.utils.sheet_to_json(sheet);
+            }
+
+            const validData = newMahasiswa.map((item) => {
+              return {
+                id: autoId++,
+                nama: item.Nama || item.nama || "",
+                nim: item.NIM || item.nim || "",
+                jurusan: item.Jurusan || item.jurusan || "",
+              };
+            });
+
+            // Tambahkan data baru ke data yang sudah ada
+            data.push(...validData);
+            saveData(data);
+            render();
+            alert(`Berhasil mengimpor ${validData.length} data mahasiswa.`);
+            return; // <-- Tambahkan baris ini
+          } catch (error) {
+            alert(
+              "Gagal mengimpor file. Pastikan format dan nama kolom file benar."
+            );
+            console.error(error);
+          }
+        };
+
+        if (isCSV) {
+          reader.readAsText(file);
+        } else {
+          reader.readAsArrayBuffer(file);
+        }
+      });
+
+      // ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) (CSV)-------------------
+      downloadBtn.addEventListener("click", () => {
+        if (data.length === 0) {
+          alert("Tidak ada data untuk diunduh.");
+          return;
+        }
+
+        // Buat header CSV
+        let csvContent = "Nama,NIM,Jurusan\n";
+
+        // Tambahkan data
+        data.forEach((row) => {
+          csvContent += `"${row.nama}","${row.nim}","${row.jurusan}"\n`;
+        });
+
+        // Buat objek Blob
+        const blob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+
+        // Buat URL dan link unduhan
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "data_mahasiswa.csv");
+
+        // Memicu unduhan
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      // ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) (PDF)-------------------
+      const downloadPdfBtn = document.getElementById("download-pdf-btn");
+
+      downloadPdfBtn.addEventListener("click", () => {
+        if (data.length === 0) {
+          alert("Tidak ada data untuk diunduh.");
+          return;
+        }
+
+        // Inisialisasi objek jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Tambahkan judul ke PDF
+        doc.setFontSize(18);
+        doc.text("Tabel Data Mahasiswa", 14, 22);
+
+        // Siapkan data untuk tabel
+        const tableColumn = ["#", "Nama", "NIM", "Jurusan"];
+        const tableRows = [];
+
+        data.forEach((row, idx) => {
+          const rowData = [idx + 1, row.nama, row.nim, row.jurusan];
+          tableRows.push(rowData);
+        });
+
+        // Buat tabel menggunakan autoTable
+        doc.autoTable({
+          head: [tableColumn],
+          body: tableRows,
+          startY: 30, // Posisi awal tabel (setelah judul)
+        });
+
+        // Simpan file PDF
+        doc.save("data_mahasiswa.pdf");
+      });
+
+      // ------------------- INIT -------------------
+      render(); // Render tabel saat halaman pertama kali dibuka
+    </script>
+  </body>
+</html>

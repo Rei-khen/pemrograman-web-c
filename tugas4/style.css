@@ -1,0 +1,245 @@
+/* ===== RESET DASAR ===== */
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 50px;
+  background: #f4f6f9;
+  color: #333;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ===== JUDUL ===== */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+h2 {
+  margin-top: 30px;
+  margin-bottom: 10px;
+  color: #34495e;
+}
+
+/* ===== FORM ===== */
+form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+form div {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+input[type="text"]:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* Tambahkan 'select' pada selector yang sudah ada */
+input[type="text"],
+select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff; /* Menjamin background putih */
+  font-size: 14px; /* Menyamakan ukuran font */
+}
+
+/* Tambahkan juga untuk efek focus */
+input[type="text"]:focus,
+select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* ===== TOMBOL ===== */
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+#btn-simpan {
+  background: #3498db;
+  color: #fff;
+}
+#btn-simpan:hover {
+  background: #2980b9;
+}
+
+#btn-reset {
+  background: #95a5a6;
+  color: #fff;
+}
+#btn-reset:hover {
+  background: #7f8c8d;
+}
+
+/* ===== TABEL ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: #3498db;
+  color: #fff;
+}
+
+tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+tr:hover {
+  background: #f1f7ff;
+}
+
+/* ===== TOMBOL EDIT / HAPUS DI TABEL ===== */
+td button {
+  padding: 5px 10px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+td button[data-edit] {
+  background: #f39c12;
+  color: #fff;
+}
+td button[data-edit]:hover {
+  background: #d68910;
+}
+
+td button[data-del] {
+  background: #e74c3c;
+  color: #fff;
+}
+td button[data-del]:hover {
+  background: #c0392b;
+}
+
+/* ================================= */
+/* KONTROL PENCARIAN & PENYORTIRAN */
+/* ================================= */
+.controls-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.search-container {
+  display: flex;
+  flex: 1;
+  margin-right: 20px;
+}
+
+.search-container input {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px 10px;
+}
+
+.search-container button {
+  margin-left: 5px;
+}
+
+.sort-container label {
+  display: inline;
+}
+
+.sort-container select {
+  padding: 8px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* ================================= */
+/* KONTROL IMPOR & EKSPOR */
+/* ================================= */
+.file-controls {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.file-controls h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.file-controls button {
+  background: #27ae60;
+  color: #fff;
+}
+
+.file-controls button:hover {
+  background: #229954;
+}
+
+/* Menyembunyikan input file standar */
+input[type="file"] {
+  display: none;
+}
+
+/* Mengatur tampilan label input file sebagai tombol */
+.btn-custom {
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 5px;
+  background: #3498db;
+  color: #fff;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-custom:hover {
+  background: #2980b9;
+}
