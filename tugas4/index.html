@@ -139,8 +139,13 @@
       const resetFilterBtn = document.getElementById("reset-filter-btn");
       const sortSelect = document.getElementById("sort-select");
 
+      // Element untuk impor dan ekspor
+      const fileUpload = document.getElementById("file-upload");
+      const downloadBtn = document.getElementById("download-btn");
+      const downloadPdfBtn = document.getElementById("download-pdf-btn"); // Ditambahkan
+
       // ------------------- FUNGSI RENDER UTAMA -------------------
-      // Sekarang fungsi render menerima parameter opsional
+      // ... (Fungsi render tetap sama)
       function render(listToRender = data) {
         if (!Array.isArray(listToRender)) listToRender = [];
         tbody.innerHTML = ""; // Kosongkan tabel sebelum render ulang
@@ -169,6 +174,7 @@
       }
 
       // ------------------- FORM SUBMIT (CREATE / UPDATE) -------------------
+      // ... (Logika form submit tetap sama)
       form.addEventListener("submit", (e) => {
         e.preventDefault(); // Mencegah reload halaman
 
@@ -258,10 +264,10 @@
         }
       });
 
-      // ------------------- FUNGSI & EVENT PENCARIAN -------------------
+      // ------------------- FUNGSI & EVENT PENCARIAN & PENYORTIRAN -------------------
+      // ... (Logika pencarian dan penyortiran tetap sama)
       function filterData(keyword) {
         const filteredData = data.filter((row) => {
-          // Gabungkan semua nilai yang bisa dicari
           const searchableString =
             `${row.nama} ${row.nim} ${row.jurusan}`.toLowerCase();
           return searchableString.includes(keyword.toLowerCase());
@@ -269,32 +275,27 @@
         render(filteredData);
       }
 
-      // Event klik tombol cari
       searchBtn.addEventListener("click", () => {
         const keyword = searchInput.value.trim();
         filterData(keyword);
       });
 
-      // Event tekan "Enter" di input cari
       searchInput.addEventListener("keyup", (e) => {
         if (e.key === "Enter") {
           filterData(searchInput.value.trim());
         }
       });
 
-      // Event klik tombol reset
       resetFilterBtn.addEventListener("click", () => {
-        searchInput.value = ""; // Kosongkan input
-        render(); // Tampilkan semua data
+        searchInput.value = "";
+        render();
       });
 
-      // ------------------- FUNGSI & EVENT PENYORTIRAN -------------------
       sortSelect.addEventListener("change", (e) => {
         const sortBy = e.target.value;
-        const sortedData = [...data]; // Buat salinan array agar data asli tidak berubah
+        const sortedData = [...data];
 
         sortedData.sort((a, b) => {
-          // Sortir berdasarkan string (Nama, Jurusan) atau angka (NIM)
           const valA = a[sortBy].toLowerCase();
           const valB = b[sortBy].toLowerCase();
 
@@ -307,14 +308,10 @@
           return 0;
         });
 
-        render(sortedData); // Render tabel dengan data yang sudah disortir
+        render(sortedData);
       });
 
-      // Tambahan elemen HTML untuk impor dan ekspor
-      const fileUpload = document.getElementById("file-upload");
-      const downloadBtn = document.getElementById("download-btn");
-
-      // ------------------- FUNGSI IMPOR DATA (UPLOAD) -------------------
+      // ------------------- FUNGSI IMPOR DATA (UPLOAD) (PENCEGAHAN DUPLIKAT) -------------------
       fileUpload.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -326,45 +323,75 @@
         reader.onload = (event) => {
           try {
             let newMahasiswa;
+
+            // Pembacaan file, tetap sama
             if (isCSV) {
-              // Logika untuk file CSV
               const csvText = event.target.result;
               const workbook = XLSX.read(csvText, { type: "string" });
               const sheetName = workbook.SheetNames[0];
               const sheet = workbook.Sheets[sheetName];
               newMahasiswa = XLSX.utils.sheet_to_json(sheet);
             } else {
-              // Logika untuk file XLSX
-              const data = new Uint8Array(event.target.result);
-              const workbook = XLSX.read(data, { type: "array" });
+              const dataArray = new Uint8Array(event.target.result);
+              const workbook = XLSX.read(dataArray, { type: "array" });
               const sheetName = workbook.SheetNames[0];
               const sheet = workbook.Sheets[sheetName];
               newMahasiswa = XLSX.utils.sheet_to_json(sheet);
             }
 
-            const validData = newMahasiswa.map((item) => {
-              return {
+            let addedCount = 0;
+            let duplicateCount = 0;
+
+            const currentNIMs = new Set(data.map((m) => m.nim)); // Set untuk cek NIM yang sudah ada (lebih cepat)
+
+            // Proses Validasi dan Pemetaan Data
+            newMahasiswa.forEach((item) => {
+              // Normalisasi dan Ambil data
+              const itemNIM = (item.NIM || item.nim || "").trim();
+              const itemNama = (item.Nama || item.nama || "").trim();
+              const itemJurusan = (item.Jurusan || item.jurusan || "").trim();
+
+              // Lewati jika data dasar tidak ada
+              if (!itemNama || !itemNIM || !itemJurusan) return;
+
+              // **LOGIKA PENCEGAHAN DUPLIKAT NIM**
+              if (currentNIMs.has(itemNIM)) {
+                duplicateCount++;
+                // Abaikan jika NIM sudah ada
+                return;
+              }
+
+              // Jika unik, tambahkan ke data utama dan ke Set untuk mencegah duplikasi di dalam file yang sama
+              data.push({
                 id: autoId++,
-                nama: item.Nama || item.nama || "",
-                nim: item.NIM || item.nim || "",
-                jurusan: item.Jurusan || item.jurusan || "",
-              };
+                nama: itemNama,
+                nim: itemNIM,
+                jurusan: itemJurusan,
+              });
+              currentNIMs.add(itemNIM);
+              addedCount++;
             });
 
-            // Tambahkan data baru ke data yang sudah ada
-            data.push(...validData);
+            // Simpan dan Render
             saveData(data);
             render();
-            alert(`Berhasil mengimpor ${validData.length} data mahasiswa.`);
-            return; // <-- Tambahkan baris ini
+
+            // Beri notifikasi hasil impor
+            let alertMessage = `Selesai mengimpor data.\n`;
+            alertMessage += `✅ ${addedCount} data baru berhasil ditambahkan.\n`;
+            if (duplicateCount > 0) {
+              alertMessage += `🚫 ${duplicateCount} data dilewati karena NIM sudah terdaftar.`;
+            }
+            alert(alertMessage);
           } catch (error) {
             alert(
-              "Gagal mengimpor file. Pastikan format dan nama kolom file benar."
+              "Gagal mengimpor file. Pastikan format dan nama kolom ('Nama', 'NIM', 'Jurusan') file benar."
             );
             console.error(error);
           }
         };
 
+        // Baca file
         if (isCSV) {
           reader.readAsText(file);
         } else {
@@ -373,43 +400,48 @@
       });
 
       // ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) (CSV)-------------------
+      // ... (Logika ekspor CSV tetap sama)
       downloadBtn.addEventListener("click", () => {
         if (data.length === 0) {
           alert("Tidak ada data untuk diunduh.");
           return;
         }
 
-        // Buat header CSV
         let csvContent = "Nama,NIM,Jurusan\n";
 
-        // Tambahkan data
         data.forEach((row) => {
           csvContent += `"${row.nama}","${row.nim}","${row.jurusan}"\n`;
         });
 
-        // Buat objek Blob
         const blob = new Blob([csvContent], {
           type: "text/csv;charset=utf-8;",
         });
 
-        // Buat URL dan link unduhan
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
         link.setAttribute("download", "data_mahasiswa.csv");
 
-        // Memicu unduhan
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       });
 
       // ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) (PDF)-------------------
-      const downloadPdfBtn = document.getElementById("download-pdf-btn");
-
       downloadPdfBtn.addEventListener("click", () => {
         if (data.length === 0) {
           alert("Tidak ada data untuk diunduh.");
+          return;
+        }
+
+        // Pastikan jsPDF tersedia
+        if (
+          typeof window.jspdf === "undefined" ||
+          typeof window.jspdf.jsPDF === "undefined"
+        ) {
+          alert(
+            "Pustaka jsPDF belum dimuat. Periksa koneksi internet atau CDN."
+          );
           return;
         }
 
