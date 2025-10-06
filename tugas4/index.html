@@ -30,21 +30,59 @@
           </div>
           <button type="submit" class="btn primary">Masuk</button>
         </form>
-        <p class="switch-link">
-          Belum punya akun?
-          <a href="registerPage.html">Daftar Sekarang</a>
-        </p>
       </div>
     </div>
 
     <script>
-      // JavaScript sederhana untuk menangani submit form Login
+      const USER_STORAGE_KEY = "user_akun";
+      const AUTH_STORAGE_KEY = "auth_status";
+
+      // --- FUNGSI DUMMY DATA USER ---
+      function ensureDummyUser() {
+        const existingUsers = JSON.parse(
+          localStorage.getItem(USER_STORAGE_KEY)
+        );
+        if (!existingUsers || existingUsers.length === 0) {
+          // Buat satu akun dummy: user@example.com, sandi: 123456
+          const dummyUser = [{ email: "tes@gmail.com", password: "123456" }];
+          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(dummyUser));
+        }
+      }
+
+      // Cek apakah user sudah login, jika ya, langsung arahkan ke dashboard
+      if (localStorage.getItem(AUTH_STORAGE_KEY) === "loggedIn") {
+        window.location.href = "dashboard.html";
+      }
+
+      // Panggil fungsi untuk memastikan data dummy ada
+      ensureDummyUser();
+
+      // --- LOGIKA FORM LOGIN ---
       document
         .getElementById("login-form")
         .addEventListener("submit", function (e) {
           e.preventDefault();
-          alert("Login berhasil! (Simulasi)");
-          // Di sini Anda akan mengarahkan pengguna ke halaman utama
+
+          const emailInput = document.getElementById("login-email").value;
+          const passwordInput = document.getElementById("login-password").value;
+
+          const users = JSON.parse(localStorage.getItem(USER_STORAGE_KEY));
+
+          // Cari pengguna yang cocok dengan email dan sandi
+          const foundUser = users.find(
+            (user) =>
+              user.email === emailInput && user.password === passwordInput
+          );
+
+          if (foundUser) {
+            // Login Berhasil
+            localStorage.setItem(AUTH_STORAGE_KEY, "loggedIn"); // Set status login
+            alert("Login berhasil! Mengarahkan ke Dashboard.");
+            window.location.href = "dashboard.html"; // Arahkan ke dashboard
+          } else {
+            // Login Gagal
+            alert("Username atau sandi Anda salah.");
+          }
         });
     </script>
   </body>

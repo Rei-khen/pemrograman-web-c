@@ -6,6 +6,9 @@
   </head>
   <link rel="stylesheet" href="styles/dashboard.css" />
   <body>
+    <div class="header-nav">
+      <button id="logout-btn" class="logout-button">Logout</button>
+    </div>
     <div class="container">
       <h1>Data Mahasiswa — CRUD Sederhana</h1>
 
@@ -142,7 +145,10 @@
       // Element untuk impor dan ekspor
       const fileUpload = document.getElementById("file-upload");
       const downloadBtn = document.getElementById("download-btn");
-      const downloadPdfBtn = document.getElementById("download-pdf-btn"); // Ditambahkan
+      const downloadPdfBtn = document.getElementById("download-pdf-btn");
+
+      //element untuk logout
+      const logoutBtn = document.getElementById("logout-btn");
 
       // ------------------- FUNGSI RENDER UTAMA -------------------
       // ... (Fungsi render tetap sama)
@@ -467,6 +473,23 @@
 
         // Simpan file PDF
         doc.save("data_mahasiswa.pdf");
+      });
+
+      // ------------------- LOGIKA AUTENTIKASI DAN LOGOUT -------------------
+      // Cek status login saat memuat dashboard
+      (function checkAuth() {
+        if (localStorage.getItem("auth_status") !== "loggedIn") {
+          alert("Anda harus login untuk mengakses halaman ini.");
+          window.location.href = "index.html"; // Arahkan kembali ke halaman login
+        }
+      })();
+
+      // Event Listener untuk tombol Logout
+      logoutBtn.addEventListener("click", () => {
+        if (confirm("Yakin ingin logout?")) {
+          localStorage.removeItem("auth_status"); // Hapus status login
+          window.location.href = "index.html"; // Arahkan ke halaman login
+        }
       });
 
       // ------------------- INIT -------------------

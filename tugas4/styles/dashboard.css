@@ -243,3 +243,43 @@ input[type="file"] {
 .btn-custom:hover {
   background: #2980b9;
 }
+
+/* ================================= */
+/* HEADER NAVIGASI (LOGOUT) */
+/* ================================= */
+.header-nav {
+  /* Posisi di sudut kanan atas browser */
+  position: absolute;
+  top: 20px;
+  right: 50px;
+  /* Pastikan berada di atas semua konten */
+  z-index: 1000;
+}
+
+/* Gaya Tombol Logout */
+#logout-btn {
+  background: #e74c3c;
+  color: #fff;
+  /* Override margin-left yang mungkin ada */
+  margin: 0;
+  padding: 10px 15px;
+}
+
+#logout-btn:hover {
+  background: #c0392b;
+}
+
+/* Penyesuaian Body agar ada padding atas yang cukup */
+body {
+  /* Meningkatkan padding atas agar tidak tertutup tombol Logout */
+  padding: 70px 50px 50px 50px;
+}
+
+/* Hapus gaya lama untuk tombol logout di file-controls */
+.file-controls > div {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  /* Tambahkan sedikit ruang di kanan jika ada tombol lain di area ini */
+  justify-content: flex-start;
+}
