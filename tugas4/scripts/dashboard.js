@@ -274,6 +274,8 @@ fileUpload.addEventListener("change", (e) => {
         "Gagal mengimpor file. Pastikan format dan nama kolom ('Nama', 'NIM', 'Jurusan') file benar."
       );
       console.error(error);
+    } finally {
+      e.target.value = "";
     }
   };
 
