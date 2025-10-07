@@ -19,6 +19,27 @@ if (localStorage.getItem(AUTH_STORAGE_KEY) === "loggedIn") {
 // panggi fungsi untuk memastikan data dummy ada
 ensureDummyUser();
 
+const passwordInput = document.getElementById("login-password");
+const toggleButton = document.getElementById("toggle-password"); // Sekarang ini adalah elemen <img>
+
+toggleButton.addEventListener("click", function () {
+  const isPassword = passwordInput.type === "password";
+
+  // 1. Alihkan Tipe Input
+  passwordInput.type = isPassword ? "text" : "password";
+
+  // 2. Alihkan Sumber Gambar Ikon
+  if (isPassword) {
+    // Jika type diubah dari 'password' ke 'text' (sandi terlihat)
+    toggleButton.src = "icons/mata-tertutup.svg";
+    toggleButton.alt = "Sembunyikan Sandi";
+  } else {
+    // Jika type diubah dari 'text' ke 'password' (sandi tersembunyi)
+    toggleButton.src = "icons/mata-terbuka.svg";
+    toggleButton.alt = "Tampilkan Sandi";
+  }
+});
+
 // --- LOGIKA FORM LOGIN ---
 document.getElementById("login-form").addEventListener("submit", function (e) {
   e.preventDefault();

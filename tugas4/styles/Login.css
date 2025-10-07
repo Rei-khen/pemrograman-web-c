@@ -59,3 +59,28 @@ body {
 .btn.primary:hover {
   background-color: #0056b3;
 }
+
+.password-group {
+  position: relative;
+}
+
+.password-group input {
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  /* Posisikan ikon di dalam input di sebelah kanan */
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%); /* Memastikan ikon berada di tengah vertikal */
+  cursor: pointer;
+  width: 20px; /* Atur ukuran ikon */
+  height: 20px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.toggle-password:hover {
+  opacity: 1;
+}
