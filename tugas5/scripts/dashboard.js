@@ -509,6 +509,227 @@ function updateStatsSummary() {
   `;
 }
 
+// ------------------- HANDLER TOMBOL EDIT / HAPUS (FIXED) -------------------
+tbody.addEventListener("click", (e) => {
+  // Gunakan 'closest' untuk mencari tombol Edit atau Hapus yang diklik
+  const editButton = e.target.closest("[data-edit]");
+  const deleteButton = e.target.closest("[data-del]");
+
+  // --- Logika Edit ---
+  if (editButton) {
+    const editId = editButton.getAttribute("data-edit");
+    const idNum = Number(editId);
+
+    const item = data.find((x) => x.id === idNum);
+    if (item) {
+      // Mengisi kembali Form untuk diedit
+      elId.value = item.id;
+      elNama.value = item.nama;
+      elNim.value = item.nim;
+      elJurusan.value = item.jurusan || "";
+      elAngkatan.value = item.angkatan || "";
+      elEmail.value = item.email || "";
+      elIpk.value = item.ipk || "";
+      elCatatan.value = item.catatan || "";
+
+      elNama.focus();
+
+      // Catatan: Input type="file" (foto) tidak dapat diisi secara programatis.
+      return; // Penting untuk menghentikan proses
+    }
+  }
+
+  // --- Logika Hapus ---
+  if (deleteButton) {
+    const delId = deleteButton.getAttribute("data-del");
+    const idNum = Number(delId);
+
+    if (confirm("Yakin hapus data ini?")) {
+      data = data.filter((x) => x.id !== idNum);
+      saveData(data);
+
+      // PENTING: Panggil renderData() untuk refresh tampilan
+      renderData();
+      alert("Data berhasil dihapus.");
+      return; // Penting untuk menghentikan proses
+    }
+  }
+});
+
+// ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) (CSV) FIXED -------------------
+downloadBtn.addEventListener("click", () => {
+  if (data.length === 0) {
+    alert("Tidak ada data untuk diunduh.");
+    return;
+  }
+
+  // UPDATE HEADER untuk SEMUA KOLOM BARU
+  let csvContent = "Nama,NIM,Jurusan,Angkatan,Email,IPK,Catatan\n";
+
+  // UPDATE DATA
+  data.forEach((row) => {
+    // Pastikan semua nilai dienkapsulasi dalam tanda kutip untuk menangani koma di Catatan
+    csvContent += `"${row.nama}","${row.nim}","${row.jurusan}","${
+      row.angkatan || ""
+    }","${row.email || ""}","${row.ipk || ""}","${row.catatan || ""}"\n`;
+  });
+
+  const blob = new Blob([csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "data_mahasiswa.csv");
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});
+
+// ------------------- FUNGSI IMPOR DATA (UPLOAD) (PENCEGAHAN DUPLIKAT) FIXED -------------------
+fileUpload.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) {
+    e.target.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  const fileName = file.name;
+  const isCSV = fileName.endsWith(".csv");
+
+  reader.onload = (event) => {
+    try {
+      let newMahasiswa;
+
+      if (isCSV) {
+        const csvText = event.target.result;
+        const workbook = XLSX.read(csvText, { type: "string" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        // Array yang berisi nama header yang diekspektasikan (HARUS SAMA PERSIS urutannya)
+        const expectedHeaders = [
+          "Nama",
+          "NIM",
+          "Jurusan",
+          "Angkatan",
+          "Email",
+          "IPK",
+          "Catatan",
+        ];
+
+        // Menggunakan opsi header: 1 untuk mendapatkan array of arrays (bukan array of objects)
+        // Ini menghindari masalah parsing header otomatis.
+        const dataAsArray = XLSX.utils.sheet_to_json(sheet, {
+          header: 1,
+          raw: false, // Raw: false agar format tanggal/angka otomatis diolah
+        });
+
+        if (dataAsArray.length < 2) {
+          // minimal 1 baris header + 1 baris data
+          // return; // handle error
+        }
+
+        // Baris header pertama (indeks 0) akan kita abaikan karena kita menggunakan expectedHeaders.
+        const dataRows = dataAsArray.slice(1);
+
+        // Mapping manual data baris ke objek menggunakan expectedHeaders
+        newMahasiswa = dataRows.map((row) => {
+          let obj = {};
+          expectedHeaders.forEach((header, index) => {
+            // Asumsi urutan data di CSV sama dengan urutan di expectedHeaders
+            obj[header] = row[index];
+          });
+          return obj;
+        });
+      } else {
+        const dataArray = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(dataArray, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        newMahasiswa = XLSX.utils.sheet_to_json(sheet);
+      }
+
+      if (newMahasiswa.length === 0) {
+        alert(
+          "Gagal membaca data dari file. Pastikan baris pertama berisi header kolom."
+        );
+        e.target.value = "";
+        return;
+      }
+
+      let addedCount = 0;
+      let duplicateCount = 0;
+
+      const currentNIMs = new Set(data.map((m) => m.nim));
+
+      // Proses Validasi dan Pemetaan Data BARU
+      newMahasiswa.forEach((item) => {
+        // Normalisasi dan Ambil data dari header yang mungkin berkapital (NIM) atau tidak (nim)
+        const itemNIM = (item.NIM || item.nim || "").trim();
+        const itemNama = (item.Nama || item.nama || "").trim();
+        const itemJurusan = (item.Jurusan || item.jurusan || "").trim();
+        const itemAngkatan = (item.Angkatan || item.angkatan || "").trim();
+        const itemEmail = (item.Email || item.email || "").trim();
+        const itemIpk = (item.IPK || item.ipk || "").trim();
+        const itemCatatan = (item.Catatan || item.catatan || "").trim();
+
+        // Validasi dasar
+        if (!itemNama || !itemNIM || !itemJurusan) return;
+
+        // Pencegahan NIM Duplikat
+        if (currentNIMs.has(itemNIM)) {
+          duplicateCount++;
+          return;
+        }
+
+        // Data unik, tambahkan
+        data.push({
+          id: autoId++,
+          nama: itemNama,
+          nim: itemNIM,
+          jurusan: itemJurusan,
+          angkatan: itemAngkatan,
+          email: itemEmail,
+          ipk: Number(itemIpk).toFixed(2), // Simpan IPK sebagai 2 desimal
+          foto: "", // Foto tidak didukung dari impor CSV/Excel
+          catatan: itemCatatan,
+        });
+        currentNIMs.add(itemNIM);
+        addedCount++;
+      });
+
+      // Simpan dan Render
+      saveData(data);
+      renderData();
+
+      let alertMessage = `Selesai mengimpor data.\n`;
+      alertMessage += `${addedCount} data baru berhasil ditambahkan.\n`;
+      if (duplicateCount > 0) {
+        alertMessage += `${duplicateCount} data dilewati karena NIM sudah terdaftar.`;
+      }
+      alert(alertMessage);
+    } catch (error) {
+      alert(
+        "Gagal mengimpor file. Pastikan format file benar (.xlsx atau .csv) dan semua kolom utama (Nama, NIM, Jurusan) terisi."
+      );
+      console.error(error);
+    } finally {
+      e.target.value = ""; // Reset input file
+    }
+  };
+
+  // Baca file
+  if (isCSV) {
+    reader.readAsText(file);
+  } else {
+    reader.readAsArrayBuffer(file);
+  }
+});
+
 // ------------------- INIT -------------------
 initAngkatanDropdown();
 // PENTING: Panggil renderData() di INIT
