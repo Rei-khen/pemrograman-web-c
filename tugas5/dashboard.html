@@ -103,43 +103,63 @@
           <input type="file" id="file-upload" accept=".xlsx, .csv" />
           <button id="download-btn">Export Data (CSV)</button>
           <button id="download-pdf-btn">Export Data (PDF)</button>
+          <button id="delete-all-btn" class="delete-button">
+            Hapus Semua Data
+          </button>
         </div>
       </div>
 
       <div class="controls-wrapper">
+        <div class="filter-group">
+          <label for="display-limit">Tampilkan:</label>
+          <select id="display-limit">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="all">Semua</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-jurusan">Jurusan:</label>
+          <select id="filter-jurusan">
+            <option value="all">Semua Jurusan</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-angkatan">Angkatan:</label>
+          <select id="filter-angkatan">
+            <option value="all">Semua Angkatan</option>
+          </select>
+        </div>
+
         <div class="search-container">
           <input
             type="text"
             id="search-input"
-            placeholder="Cari nama, nim, atau jurusan..."
+            placeholder="Cari nama, nim, jurusan, angkatan..."
           />
           <button id="search-btn">Cari</button>
-          <button id="reset-filter-btn">Reset</button>
-        </div>
-
-        <div class="sort-container">
-          <label for="sort-select">Urutkan berdasarkan:</label>
-          <select id="sort-select">
-            <option value="nama">Nama</option>
-            <option value="nim">NIM</option>
-            <option value="jurusan">Jurusan</option>
-            <option value="angkatan">Angkatan</option>
-            <option value="ipk">IPK</option>
-          </select>
+          <button id="reset-filter-btn">Reset Filter</button>
         </div>
       </div>
 
-      <h2>Daftar Mahasiswa</h2>
+      <h2 id="stats-header">Daftar Mahasiswa [Total: 0]</h2>
+
       <table border="1" cellpadding="5">
         <thead>
           <tr>
-            <th>#</th>
+            <th width="30px">
+              <input type="checkbox" id="select-all-checkbox" />
+            </th>
+            <th width="30px">#</th>
             <th>Nama</th>
             <th>NIM</th>
             <th>Jurusan</th>
             <th>Angkatan</th>
             <th>Email</th>
-            <th>IPK</th>
+            <th id="sort-ipk" class="sortable">IPK</th>
             <th>Foto</th>
             <th>Catatan</th>
             <th>Aksi</th>
@@ -147,6 +167,16 @@
         </thead>
         <tbody id="tbody"></tbody>
       </table>
+
+      <div class="table-footer-controls">
+        <div class="batch-actions">
+          <button id="select-batch-btn">Pilih Semua</button>
+          <button id="delete-selected-btn" class="delete-button">
+            Hapus Terpilih
+          </button>
+        </div>
+        <div id="pagination-controls"></div>
+      </div>
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>

@@ -6,49 +6,66 @@ const loadData = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
 const saveData = (list) =>
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 
-// ------------------- STATE -------------------
+// ------------------- STATE GLOBAL -------------------
 let data = loadData();
 let autoId = data.reduce((m, o) => Math.max(m, o.id), 0) + 1;
+
+// STATE UNTUK FILTER DAN PAGINATION
+let currentPage = 1;
+let rowsPerPage = 10;
+let currentSort = { key: "id", direction: "asc" }; // Default sort by ID ascending
 
 // ------------------- ELEMENT HTML -------------------
 const form = document.getElementById("form-mahasiswa");
 const elId = document.getElementById("id");
 const elNama = document.getElementById("nama");
 const elNim = document.getElementById("nim");
-const elJurusan = document.getElementById("jurusan"); // Diperbarui
-const elAngkatan = document.getElementById("angkatan"); // BARU
-const elEmail = document.getElementById("email"); // BARU
-const elIpk = document.getElementById("ipk"); // BARU
-const elFoto = document.getElementById("foto"); // BARU
-const elCatatan = document.getElementById("catatan"); // BARU
+const elJurusan = document.getElementById("jurusan");
+const elAngkatan = document.getElementById("angkatan");
+const elEmail = document.getElementById("email");
+const elIpk = document.getElementById("ipk");
+const elFoto = document.getElementById("foto");
+const elCatatan = document.getElementById("catatan");
 
 const tbody = document.getElementById("tbody");
 const btnReset = document.getElementById("btn-reset");
 
+// Kontrol Baru
+const displayLimit = document.getElementById("display-limit");
+const filterJurusan = document.getElementById("filter-jurusan");
+const filterAngkatan = document.getElementById("filter-angkatan");
 const searchInput = document.getElementById("search-input");
 const searchBtn = document.getElementById("search-btn");
 const resetFilterBtn = document.getElementById("reset-filter-btn");
-const sortSelect = document.getElementById("sort-select");
 
 const fileUpload = document.getElementById("file-upload");
 const downloadBtn = document.getElementById("download-btn");
 const downloadPdfBtn = document.getElementById("download-pdf-btn");
 const logoutBtn = document.getElementById("logout-btn");
 
+// Aksi Batch dan Pagination
+const selectAllCheckbox = document.getElementById("select-all-checkbox");
+const deleteSelectedBtn = document.getElementById("delete-selected-btn");
+const selectBatchBtn = document.getElementById("select-batch-btn");
+const deleteAllBtn = document.getElementById("delete-all-btn");
+const paginationControls = document.getElementById("pagination-controls");
+const statsHeader = document.getElementById("stats-header");
+const sortIpk = document.getElementById("sort-ipk");
+
 // ------------------- FUNGSI UTILITY -------------------
 
-// Inisialisasi dropdown Angkatan
+function getUniqueValues(key) {
+  const values = data.map((item) => item[key]);
+  return ["all", ...new Set(values)].filter((v) => v); // Filter nilai kosong
+}
+
 function initAngkatanDropdown() {
   const startYear = 2000;
   const endYear = 2025;
-
-  // Cek jika elemen elAngkatan TIDAK ADA, hentikan fungsi
   if (!elAngkatan) return;
-
-  // NOTE: Kita hanya membuat opsi tahun, placeholder "--- Pilih Angkatan ---"
-  // sudah ada di HTML dan harus dipertahankan.
-
-  // Buat dan tambahkan opsi tahun
+  // Hapus opsi lama sebelum menambahkan yang baru
+  elAngkatan.innerHTML =
+    '<option value="" disabled selected>--- Pilih Angkatan ---</option>';
   for (let year = endYear; year >= startYear; year--) {
     const option = document.createElement("option");
     option.value = year;
@@ -57,25 +74,96 @@ function initAngkatanDropdown() {
   }
 }
 
-// ------------------- FUNGSI RENDER UTAMA (DIPERBARUI) -------------------
-function render(listToRender = data) {
-  if (!Array.isArray(listToRender)) listToRender = [];
-  tbody.innerHTML = "";
+function initFilterDropdowns() {
+  // Jurusan Filter
+  const uniqueJurusans = getUniqueValues("jurusan").filter((v) => v !== "all");
+  filterJurusan.innerHTML =
+    '<option value="all">Semua Jurusan</option>' +
+    uniqueJurusans.map((j) => `<option value="${j}">${j}</option>`).join("");
 
-  if (listToRender.length === 0) {
+  // Angkatan Filter
+  const uniqueAngkatans = getUniqueValues("angkatan").filter(
+    (v) => v !== "all"
+  );
+  filterAngkatan.innerHTML =
+    '<option value="all">Semua Angkatan</option>' +
+    uniqueAngkatans.map((a) => `<option value="${a}">${a}</option>`).join("");
+}
+
+// ------------------- FUNGSI FILTER & SORTING -------------------
+
+function getFilteredAndSortedData() {
+  let filteredData = [...data];
+  const searchKeyword = searchInput.value.trim().toLowerCase();
+  const selectedJurusan = filterJurusan.value;
+  const selectedAngkatan = filterAngkatan.value;
+
+  // 1. Filtering
+  filteredData = filteredData.filter((row) => {
+    // Filter Jurusan
+    if (selectedJurusan !== "all" && row.jurusan !== selectedJurusan)
+      return false;
+    // Filter Angkatan
+    if (selectedAngkatan !== "all" && row.angkatan !== selectedAngkatan)
+      return false;
+    // Search Filter
+    if (searchKeyword) {
+      const searchableString =
+        `${row.nama} ${row.nim} ${row.jurusan} ${row.angkatan} ${row.email}`.toLowerCase();
+      return searchableString.includes(searchKeyword);
+    }
+    return true;
+  });
+
+  // 2. Sorting
+  filteredData.sort((a, b) => {
+    const key = currentSort.key;
+    const dir = currentSort.direction === "asc" ? 1 : -1;
+
+    // Khusus IPK dan Angkatan (Numerik)
+    if (key === "ipk" || key === "angkatan") {
+      return dir * (Number(a[key]) - Number(b[key]));
+    }
+    // Sortir String
+    const valA = String(a[key]).toLowerCase();
+    const valB = String(b[key]).toLowerCase();
+
+    if (valA < valB) return -1 * dir;
+    if (valA > valB) return 1 * dir;
+    return 0;
+  });
+
+  return filteredData;
+}
+
+// ------------------- FUNGSI PAGINATION & RENDER UTAMA -------------------
+
+function renderTable(list) {
+  // 1. Tentukan data untuk halaman saat ini
+  rowsPerPage =
+    displayLimit.value === "all" ? list.length : Number(displayLimit.value);
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = rowsPerPage === list.length ? list.length : start + rowsPerPage;
+  const paginatedItems = list.slice(start, end);
+
+  // 2. Render Statistik
+  const totalData = data.length;
+  const totalFiltered = list.length;
+  statsHeader.textContent = `Daftar Mahasiswa [Total: ${totalData}, Hasil Filter: ${totalFiltered}]`;
+
+  // 3. Render Tabel Body
+  tbody.innerHTML = "";
+  if (paginatedItems.length === 0) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="10">Data tidak ditemukan.</td>`;
+    tr.innerHTML = `<td colspan="11">Data tidak ditemukan.</td>`;
     tbody.appendChild(tr);
     return;
   }
 
-  listToRender.forEach((row, idx) => {
-    // Tampilkan foto kecil atau placeholder
+  paginatedItems.forEach((row, idx) => {
     const fotoHtml = row.foto
       ? `<img src="${row.foto}" alt="Foto ${row.nama}" class="mahasiswa-foto">`
       : "—";
-
-    // Tampilkan catatan, tambahkan "Lihat" jika panjang
     const catatanSingkat = row.catatan
       ? row.catatan.length > 20
         ? row.catatan.substring(0, 17) + "..."
@@ -84,7 +172,8 @@ function render(listToRender = data) {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${idx + 1}</td>
+      <td><input type="checkbox" class="row-checkbox" data-id="${row.id}"></td>
+      <td>${start + idx + 1}</td>
       <td>${row.nama}</td>
       <td>${row.nim}</td>
       <td>${row.jurusan}</td>
@@ -100,9 +189,169 @@ function render(listToRender = data) {
     `;
     tbody.appendChild(tr);
   });
+
+  // 4. Update status checkbox Pilih Semua
+  selectAllCheckbox.checked =
+    tbody.querySelectorAll(".row-checkbox").length > 0 &&
+    tbody.querySelectorAll(".row-checkbox:checked").length ===
+      paginatedItems.length;
+
+  // 5. Render Pagination Controls
+  renderPagination(list.length);
 }
 
-// ------------------- FORM SUBMIT (CREATE / UPDATE) (DIPERBARUI) -------------------
+function renderPagination(totalItems) {
+  paginationControls.innerHTML = "";
+  if (rowsPerPage === totalItems || totalItems === 0 || rowsPerPage === "all")
+    return;
+
+  const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+  // Tombol Previous
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "<<";
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.addEventListener("click", () => {
+    currentPage--;
+    renderData();
+  });
+  paginationControls.appendChild(prevBtn);
+
+  // Tombol Halaman (Maksimal 5)
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage = Math.min(totalPages, currentPage + 2);
+
+  if (endPage - startPage < 4) {
+    if (startPage > 1) startPage = Math.max(1, endPage - 4);
+    if (endPage < totalPages) endPage = Math.min(totalPages, startPage + 4);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const pageBtn = document.createElement("button");
+    pageBtn.textContent = i;
+    if (i === currentPage) pageBtn.classList.add("active");
+    pageBtn.addEventListener("click", () => {
+      currentPage = i;
+      renderData();
+    });
+    paginationControls.appendChild(pageBtn);
+  }
+
+  // Tombol Next
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = ">>";
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.addEventListener("click", () => {
+    currentPage++;
+    renderData();
+  });
+  paginationControls.appendChild(nextBtn);
+}
+
+function renderData() {
+  const list = getFilteredAndSortedData();
+  // Reset ke halaman 1 jika filter/sort berubah
+  if (currentPage > Math.ceil(list.length / rowsPerPage)) {
+    currentPage = 1;
+  }
+  renderTable(list);
+  initFilterDropdowns(); // Update dropdown filter setelah CRUD
+}
+
+// ------------------- LOGIKA CHECKBOX DAN BATCH ACTION -------------------
+
+function getSelectedIds() {
+  const checked = tbody.querySelectorAll(".row-checkbox:checked");
+  return Array.from(checked).map((cb) => Number(cb.dataset.id));
+}
+
+selectAllCheckbox.addEventListener("change", (e) => {
+  const checkboxes = tbody.querySelectorAll(".row-checkbox");
+  checkboxes.forEach((cb) => (cb.checked = e.target.checked));
+});
+
+tbody.addEventListener("change", (e) => {
+  if (e.target.classList.contains("row-checkbox")) {
+    const totalRows = tbody.querySelectorAll(".row-checkbox").length;
+    const checkedRows = tbody.querySelectorAll(".row-checkbox:checked").length;
+    selectAllCheckbox.checked = totalRows > 0 && totalRows === checkedRows;
+  }
+});
+
+selectBatchBtn.addEventListener("click", () => {
+  // Logika untuk memilih semua di halaman ini
+  const checkboxes = tbody.querySelectorAll(".row-checkbox");
+  const allChecked = Array.from(checkboxes).every((cb) => cb.checked);
+  checkboxes.forEach((cb) => (cb.checked = !allChecked)); // Toggle
+  selectAllCheckbox.checked = !allChecked;
+});
+
+deleteSelectedBtn.addEventListener("click", () => {
+  const idsToDelete = getSelectedIds();
+  if (idsToDelete.length === 0) {
+    alert("Pilih setidaknya satu data untuk dihapus.");
+    return;
+  }
+
+  if (confirm(`Yakin ingin menghapus ${idsToDelete.length} data terpilih?`)) {
+    data = data.filter((row) => !idsToDelete.includes(row.id));
+    saveData(data);
+    renderData();
+    alert(`${idsToDelete.length} data berhasil dihapus.`);
+  }
+});
+
+deleteAllBtn.addEventListener("click", () => {
+  if (data.length === 0) {
+    alert("Tidak ada data untuk dihapus.");
+    return;
+  }
+  if (
+    confirm(
+      `PERINGATAN! Anda akan menghapus SEMUA ${data.length} data mahasiswa. Lanjutkan?`
+    )
+  ) {
+    data = []; // Kosongkan array data
+    saveData(data);
+    renderData();
+    alert("Semua data mahasiswa berhasil dihapus.");
+  }
+});
+
+// ------------------- EVENT LISTENERS LAIN -------------------
+
+// Events yang memicu pembaruan data dan mereset halaman
+[displayLimit, filterJurusan, filterAngkatan].forEach((el) => {
+  el.addEventListener("change", () => {
+    currentPage = 1;
+    renderData();
+  });
+});
+
+[searchBtn, resetFilterBtn].forEach((el) => {
+  el.addEventListener("click", () => {
+    currentPage = 1;
+    renderData();
+  });
+});
+searchInput.addEventListener("keyup", (e) => {
+  if (e.key === "Enter") {
+    currentPage = 1;
+    renderData();
+  }
+});
+
+// Event Sorting (IPK)
+sortIpk.addEventListener("click", () => {
+  currentSort.key = "ipk";
+  currentSort.direction = currentSort.direction === "asc" ? "desc" : "asc";
+  renderData();
+});
+
+// ------------------- FORM SUBMIT (CRUD Logic - Pastikan memanggil renderData()) -------------------
+// ... (Logika form submit CRUD tetap sama, tetapi di akhir harus memanggil renderData() )
+// NOTE: Saya menggunakan async/await di fungsi ini, pastikan Anda menggunakan versi terbaru.
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -110,10 +359,10 @@ form.addEventListener("submit", async (e) => {
   const nama = elNama.value.trim();
   const nim = elNim.value.trim();
   const jurusanVal = elJurusan.value.trim();
-  const angkatanVal = elAngkatan.value.trim(); // BARU
-  const emailVal = elEmail.value.trim(); // BARU
-  const ipkVal = Number(elIpk.value); // BARU
-  const catatanVal = elCatatan.value.trim(); // BARU
+  const angkatanVal = elAngkatan.value.trim();
+  const emailVal = elEmail.value.trim();
+  const ipkVal = Number(elIpk.value);
+  const catatanVal = elCatatan.value.trim();
 
   if (
     !nama ||
@@ -141,7 +390,6 @@ form.addEventListener("submit", async (e) => {
       return alert(`Ukuran foto melebihi batas maksimum ${maxSizeMB} MB.`);
     }
 
-    // Konversi foto ke Base64 (untuk penyimpanan di localStorage)
     fotoBase64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
@@ -173,218 +421,29 @@ form.addEventListener("submit", async (e) => {
     jurusan: jurusanVal,
     angkatan: angkatanVal,
     email: emailVal,
-    ipk: ipkVal.toFixed(2), // Simpan dalam 2 desimal
+    ipk: ipkVal.toFixed(2),
     foto:
       fotoBase64 ||
-      (idVal ? data.find((x) => x.id === Number(idVal)).foto : ""), // Pertahankan foto lama saat edit
+      (idVal ? data.find((x) => x.id === Number(idVal)).foto : ""),
     catatan: catatanVal,
   };
 
   if (idVal) {
-    // UPDATE DATA
     const idx = data.findIndex((x) => x.id === Number(idVal));
     if (idx >= 0) {
-      // Pastikan foto lama dipertahankan jika tidak ada foto baru diunggah
       if (!fotoBase64) newData.foto = data[idx].foto;
       data[idx] = newData;
     }
   } else {
-    // CREATE DATA BARU
     data.push(newData);
   }
 
   saveData(data);
-  render();
+  // PENTING: Panggil renderData() yang baru
+  renderData();
   form.reset();
   elId.value = "";
   elNama.focus();
-});
-
-// ------------------- RESET FORM -------------------
-btnReset.addEventListener("click", () => {
-  form.reset();
-  elId.value = "";
-  elNama.focus();
-});
-
-// ------------------- HANDLER TOMBOL EDIT / HAPUS (DIPERBARUI) -------------------
-tbody.addEventListener("click", (e) => {
-  const editId = e.target.getAttribute("data-edit");
-  const delId = e.target.getAttribute("data-del");
-
-  if (editId) {
-    // EDIT DATA
-    const item = data.find((x) => x.id === Number(editId));
-    if (item) {
-      elId.value = item.id;
-      elNama.value = item.nama;
-      elNim.value = item.nim;
-      elJurusan.value = item.jurusan || "";
-      elAngkatan.value = item.angkatan || ""; // BARU
-      elEmail.value = item.email || ""; // BARU
-      elIpk.value = item.ipk || ""; // BARU
-      elCatatan.value = item.catatan || ""; // BARU
-      elNama.focus();
-      // Catatan: Input type="file" tidak dapat diisi secara programatis (demi keamanan browser), jadi foto harus diunggah ulang saat edit jika ingin diganti.
-    }
-  }
-
-  if (delId) {
-    // DELETE DATA
-    const idNum = Number(delId);
-    if (confirm("Yakin hapus data ini?")) {
-      data = data.filter((x) => x.id !== idNum);
-      saveData(data);
-      render();
-    }
-  }
-});
-
-// ------------------- FUNGSI PENCARIAN & PENYORTIRAN -------------------
-function filterData(keyword) {
-  const filteredData = data.filter((row) => {
-    // Tambahkan bidang baru ke string pencarian
-    const searchableString =
-      `${row.nama} ${row.nim} ${row.jurusan} ${row.angkatan} ${row.email} ${row.ipk} ${row.catatan}`.toLowerCase();
-    return searchableString.includes(keyword.toLowerCase());
-  });
-  render(filteredData);
-}
-
-// ... (Logika event search, reset, dan sort tetap sama) ...
-searchBtn.addEventListener("click", () => {
-  const keyword = searchInput.value.trim();
-  filterData(keyword);
-});
-
-searchInput.addEventListener("keyup", (e) => {
-  if (e.key === "Enter") {
-    filterData(searchInput.value.trim());
-  }
-});
-
-resetFilterBtn.addEventListener("click", () => {
-  searchInput.value = "";
-  render();
-});
-
-sortSelect.addEventListener("change", (e) => {
-  const sortBy = e.target.value;
-  const sortedData = [...data];
-
-  sortedData.sort((a, b) => {
-    // Perlakuan khusus untuk IPK (angka)
-    if (sortBy === "ipk" || sortBy === "angkatan") {
-      return Number(a[sortBy]) - Number(b[sortBy]);
-    }
-    const valA = a[sortBy].toLowerCase();
-    const valB = b[sortBy].toLowerCase();
-
-    if (valA < valB) return -1;
-    if (valA > valB) return 1;
-    return 0;
-  });
-
-  render(sortedData);
-});
-
-// ------------------- FUNGSI IMPOR DATA (UPLOAD) (DIPERBARUI) -------------------
-// ... (Logika impor harus diperbarui untuk menangani 3 kolom baru: Angkatan, Email, IPK, Foto, Catatan) ...
-fileUpload.addEventListener("change", (e) => {
-  alert(
-    "Fungsi Impor belum sepenuhnya diperbarui untuk file dengan kolom Angkatan, Email, IPK, Foto, dan Catatan. Silakan masukkan data secara manual untuk sementara."
-  );
-  // Catatan: Memperbarui fungsi impor untuk menangani semua kolom baru dan base64 foto memerlukan validasi dan logika yang rumit.
-  // Untuk menjaga fokus pada fitur CRUD, saya akan menunda pembaruan impor ini atau kembali ke logika lama.
-  e.target.value = ""; // Tetap reset input
-});
-
-// ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) (DIPERBARUI)-------------------
-downloadBtn.addEventListener("click", () => {
-  if (data.length === 0) {
-    alert("Tidak ada data untuk diunduh.");
-    return;
-  }
-
-  // Tambahkan Angkatan, Email, IPK, Catatan ke header CSV
-  let csvContent = "Nama,NIM,Jurusan,Angkatan,Email,IPK,Catatan\n";
-
-  data.forEach((row) => {
-    // Abaikan foto saat ekspor CSV
-    csvContent += `"${row.nama}","${row.nim}","${row.jurusan}","${
-      row.angkatan || ""
-    }","${row.email || ""}","${row.ipk || ""}","${row.catatan || ""}"\n`;
-  });
-
-  const blob = new Blob([csvContent], {
-    type: "text/csv;charset=utf-8;",
-  });
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", "data_mahasiswa.csv");
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-});
-
-// ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) (PDF) (DIPERBARUI)-------------------
-downloadPdfBtn.addEventListener("click", () => {
-  if (data.length === 0) {
-    alert("Tidak ada data untuk diunduh.");
-    return;
-  }
-
-  if (
-    typeof window.jspdf === "undefined" ||
-    typeof window.jspdf.jsPDF === "undefined"
-  ) {
-    alert("Pustaka jsPDF belum dimuat. Periksa koneksi internet atau CDN.");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("landscape"); // Menggunakan orientasi landscape agar kolom banyak muat
-
-  doc.setFontSize(14);
-  doc.text("Tabel Data Mahasiswa", 14, 15);
-
-  // Tambahkan Angkatan, Email, IPK, dan Catatan ke kolom tabel
-  const tableColumn = [
-    "#",
-    "Nama",
-    "NIM",
-    "Jurusan",
-    "Angkatan",
-    "Email",
-    "IPK",
-    "Catatan",
-  ];
-  const tableRows = [];
-
-  data.forEach((row, idx) => {
-    const rowData = [
-      idx + 1,
-      row.nama,
-      row.nim,
-      row.jurusan,
-      row.angkatan,
-      row.email,
-      row.ipk,
-      row.catatan ? row.catatan.substring(0, 30) + "..." : "—",
-    ];
-    tableRows.push(rowData);
-  });
-
-  doc.autoTable({
-    head: [tableColumn],
-    body: tableRows,
-    startY: 20,
-  });
-
-  doc.save("data_mahasiswa.pdf");
 });
 
 // ------------------- LOGIKA AUTENTIKASI DAN LOGOUT -------------------
@@ -403,5 +462,6 @@ logoutBtn.addEventListener("click", () => {
 });
 
 // ------------------- INIT -------------------
-initAngkatanDropdown(); // Inisialisasi Angkatan
-render();
+initAngkatanDropdown();
+// PENTING: Panggil renderData() di INIT
+renderData();

@@ -321,3 +321,69 @@ textarea {
   /* Pastikan padding dan border tetap seperti sebelumnya */
   /* ... */
 }
+
+/* ... (Gaya CSS yang sudah ada) ... */
+
+/* GAYA KHUSUS UNTUK TOMBOL HAPUS */
+.delete-button {
+  background: #e74c3c !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+.delete-button:hover {
+  background: #c0392b !important;
+}
+
+/* KONTROL TABEL FOOTER (Pagination dan Batch Actions) */
+.table-footer-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding: 10px 0;
+}
+
+/* GAYA UNTUK PAGINATION */
+#pagination-controls button {
+  padding: 8px 12px;
+  margin: 0 3px;
+  background: #f1f1f1;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#pagination-controls button.active {
+  background: #3498db;
+  color: #fff;
+  border-color: #3498db;
+}
+
+/* Gaya untuk kolom sortable (IPK) */
+th.sortable {
+  cursor: pointer;
+}
+
+/* Menghapus gaya lama untuk search-container karena sudah diganti */
+.controls-wrapper {
+  /* ... (tetap sama) ... */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px; /* Jarak antar filter group */
+  justify-content: flex-start;
+}
+
+.controls-wrapper .filter-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.controls-wrapper .filter-group select {
+  width: auto; /* Agar select tidak membentang penuh */
+}
+
+.controls-wrapper .search-container {
+  flex: 2 1 300px; /* Memberi ruang lebih untuk search */
+  margin-right: 0;
+}
