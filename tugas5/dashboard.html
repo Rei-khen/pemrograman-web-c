@@ -6,11 +6,26 @@
   </head>
   <link rel="stylesheet" href="styles/dashboard.css" />
   <body>
-    <div class="header-nav">
-      <button id="logout-btn" class="logout-button">Logout</button>
-    </div>
     <div class="container">
-      <h1>Data Mahasiswa — CRUD Sederhana</h1>
+      <div class="app-header">
+        <h1>Data Mahasiswa — CRUD Sederhana</h1>
+        <button id="logout-btn" class="logout-button">Logout</button>
+      </div>
+
+      <div class="file-controls">
+        <h3>Impor/Ekspor Data</h3>
+        <div>
+          <label for="file-upload" class="btn-custom"
+            >Import File (.xlsx, .csv)</label
+          >
+          <input type="file" id="file-upload" accept=".xlsx, .csv" />
+          <button id="download-btn">Export Data (CSV)</button>
+          <button id="download-pdf-btn">Export Data (PDF)</button>
+          <button id="delete-all-btn" class="delete-button">
+            Hapus Semua Data
+          </button>
+        </div>
+      </div>
 
       <form id="form-mahasiswa" autocomplete="off">
         <div class="form-grid">
@@ -94,19 +109,8 @@
         </div>
       </form>
 
-      <div class="file-controls">
-        <h3>Impor/Ekspor Data</h3>
-        <div>
-          <label for="file-upload" class="btn-custom"
-            >Import File (.xlsx, .csv)</label
-          >
-          <input type="file" id="file-upload" accept=".xlsx, .csv" />
-          <button id="download-btn">Export Data (CSV)</button>
-          <button id="download-pdf-btn">Export Data (PDF)</button>
-          <button id="delete-all-btn" class="delete-button">
-            Hapus Semua Data
-          </button>
-        </div>
+      <div id="stats-summary">
+        <p>Statistik: Menghitung...</p>
       </div>
 
       <div class="controls-wrapper">

@@ -13,6 +13,24 @@ body {
   color: #333;
 }
 
+/* ================================= */
+/* KOREKSI: STYLE HEADER APLIKASI */
+/* ================================= */
+.app-header {
+  display: flex;
+  justify-content: space-between; /* Pisahkan judul dan tombol */
+  align-items: center;
+  padding: 10px 0; /* Memberi sedikit ruang vertikal */
+  margin-bottom: 20px;
+}
+
+.app-header h1 {
+  /* Hapus text-align: center yang lama dan set margin agar sejajar */
+  text-align: left;
+  margin: 0;
+  flex-grow: 1; /* Biarkan judul mengambil ruang sebanyak mungkin */
+}
+
 .container {
   /* KOREKSI: Meningkatkan lebar maksimum container (kembali ke 800px) */
   max-width: 1500px;
@@ -103,6 +121,51 @@ button {
 }
 #btn-reset:hover {
   background: #7f8c8d;
+}
+
+/* ================================= */
+/* GAYA STATISTIK RINGKASAN (PENYESUAIAN WARNA) */
+/* ================================= */
+#stats-summary {
+  /* Menggunakan warna yang lebih seragam dengan header/judul */
+  background: #3498db; /* Biru cerah, sama dengan header tabel */
+  color: #fff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* 1. Rata IPK (Dipaksa ke Kanan) */
+#stats-summary .stat-rata-ipk {
+  float: right;
+  padding-left: 15px;
+}
+
+/* 2. Total (Di Kiri) */
+#stats-summary .stat-total {
+  display: inline-block;
+  padding-right: 15px;
+}
+
+/* 3. Jurusan (Pindah ke Baris Baru & Menguasai Lebar) */
+#stats-summary .stat-jurusan {
+  clear: both;
+  width: 100%;
+  margin-top: 10px;
+  /* Menggunakan Flexbox di dalam Jurusan untuk mengatur setiap item */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 15px;
+  line-height: 1.5; /* Jarak baris jika wrapping */
+}
+
+/* Mengatur tampilan setiap Jurusan: Jumlah */
+#stats-summary .stat-jurusan .prodi-item {
+  flex-shrink: 0;
+  display: inline-block;
 }
 
 /* tabel */
@@ -247,15 +310,6 @@ td img.mahasiswa-foto {
 
 .btn-custom:hover {
   background: #2980b9;
-}
-
-/* header navigasi logout */
-.header-nav {
-  position: absolute;
-  top: 20px;
-  /* KOREKSI: Tombol Logout diposisikan 20px dari tepi kanan */
-  right: 20px;
-  z-index: 1000;
 }
 
 /* style tombol logout */

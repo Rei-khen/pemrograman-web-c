@@ -26,6 +26,7 @@ const elEmail = document.getElementById("email");
 const elIpk = document.getElementById("ipk");
 const elFoto = document.getElementById("foto");
 const elCatatan = document.getElementById("catatan");
+const statsSummary = document.getElementById("stats-summary");
 
 const tbody = document.getElementById("tbody");
 const btnReset = document.getElementById("btn-reset");
@@ -250,12 +251,16 @@ function renderPagination(totalItems) {
 
 function renderData() {
   const list = getFilteredAndSortedData();
+
   // Reset ke halaman 1 jika filter/sort berubah
   if (currentPage > Math.ceil(list.length / rowsPerPage)) {
     currentPage = 1;
   }
   renderTable(list);
-  initFilterDropdowns(); // Update dropdown filter setelah CRUD
+  initFilterDropdowns();
+
+  // PENTING: Panggil fungsi statistik di sini
+  updateStatsSummary();
 }
 
 // ------------------- LOGIKA CHECKBOX DAN BATCH ACTION -------------------
@@ -460,6 +465,49 @@ logoutBtn.addEventListener("click", () => {
     window.location.href = "index.html";
   }
 });
+
+// ------------------- FUNGSI PENGHITUNGAN STATISTIK FINAL FIX -------------------
+
+function updateStatsSummary() {
+  if (data.length === 0) {
+    statsSummary.innerHTML = "<div>Total: 0</div>";
+    return;
+  }
+
+  // 1. Total Data
+  const totalMahasiswa = data.length;
+
+  // 2. Rata-rata IPK
+  const validIpkData = data.filter((row) => !isNaN(Number(row.ipk)));
+  const totalIpk = validIpkData.reduce((sum, row) => sum + Number(row.ipk), 0);
+  const rataIpk =
+    validIpkData.length > 0
+      ? (totalIpk / validIpkData.length).toFixed(2)
+      : "0.00";
+
+  // 3. Jumlah Mahasiswa per Jurusan
+  const prodiCounts = data.reduce((acc, row) => {
+    const prodi = row.jurusan || "Tidak Diketahui";
+    acc[prodi] = (acc[prodi] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Buat HTML untuk setiap Jurusan, dipisahkan oleh |
+  const prodiSummaryHtml = Object.entries(prodiCounts)
+    .map(
+      ([prodi, count]) => `<span class="prodi-item">${prodi}: ${count}</span>`
+    )
+    .join(" | ");
+
+  // Render HTML: Gunakan struktur terpisah untuk mengatur posisi
+  statsSummary.innerHTML = `
+    <div class="stat-rata-ipk">Rata IPK: ${rataIpk}</div>
+    
+    <div class="stat-total">Total: ${totalMahasiswa}</div>
+    
+    <div class="stat-jurusan">Jurusan: ${prodiSummaryHtml}</div>
+  `;
+}
 
 // ------------------- INIT -------------------
 initAngkatanDropdown();
