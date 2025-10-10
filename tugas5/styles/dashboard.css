@@ -227,7 +227,8 @@ td img.mahasiswa-foto {
 }
 
 /* Menyembunyikan input file standar */
-input[type="file"] {
+/* Menyembunyikan input file standar HANYA yang ada di dalam .file-controls */
+.file-controls input[type="file"] {
   display: none;
 }
 
@@ -274,4 +275,49 @@ input[type="file"] {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-start;
+}
+
+/* ================================= */
+/* KOREKSI: STRUKTUR FORM DUA KOLOM */
+/* ================================= */
+
+/* Container utama di dalam form yang menampung input */
+.form-grid {
+  display: flex;
+  flex-wrap: wrap; /* Memungkinkan item untuk pindah baris */
+  justify-content: space-between; /* Memberi ruang di antara kolom */
+  gap: 15px; /* Jarak vertikal dan horizontal antar form-group */
+}
+
+/* Setiap grup label + input */
+.form-group {
+  /* Setiap kolom mengambil hampir 50% lebar */
+  flex: 1 1 calc(50% - 10px);
+  margin-bottom: 0; /* Hapus margin lama dari form div */
+}
+
+/* Form group yang harus membentang penuh (misalnya Nama, Catatan, Tombol) */
+.form-group.full-width {
+  flex: 1 1 100%;
+}
+
+/* Mengganti styling lama untuk form div */
+form div {
+  /* Hapus margin-bottom yang lama yang mengganggu struktur Flexbox */
+  margin-bottom: 0;
+}
+/* Kembalikan margin-bottom ke form-group */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* KOREKSI: Pastikan input, select, textarea tetap mengambil 100% dari form-group mereka */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  /* Pastikan padding dan border tetap seperti sebelumnya */
+  /* ... */
 }
