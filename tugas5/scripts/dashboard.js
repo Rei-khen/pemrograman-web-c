@@ -730,6 +730,17 @@ fileUpload.addEventListener("change", (e) => {
   }
 });
 
+// ------------------- FUNGSI PRINT DATA (MENGGANTIKAN EKSPOR PDF) -------------------
+downloadPdfBtn.addEventListener("click", () => {
+  if (data.length === 0) {
+    alert("Tidak ada data untuk dicetak.");
+    return;
+  }
+
+  // Memanggil dialog Print browser
+  window.print();
+});
+
 // ------------------- INIT -------------------
 initAngkatanDropdown();
 // PENTING: Panggil renderData() di INIT

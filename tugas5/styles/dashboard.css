@@ -465,3 +465,50 @@ th.sortable {
   flex: 2 1 300px; /* Memberi ruang lebih untuk search */
   margin-right: 0;
 }
+
+/* ================================= */
+/* MEDIA QUERY KHUSUS PRINT (FINAL FIX) */
+/* ================================= */
+@media print {
+  /* Sembunyikan SEMUA elemen non-tabel, TERMASUK JUDUL TABEL */
+  .app-header,
+  .file-controls,
+  form,
+  #stats-summary,
+  .controls-wrapper,
+  .table-footer-controls,
+  #stats-header {
+    /* <-- BARIS KRUSIAL DITAMBAHKAN */
+    display: none !important;
+  }
+
+  /* 1. Sembunyikan kolom CHECKBOX (Kolom pertama) */
+  table th:nth-child(1),
+  table td:nth-child(1) {
+    display: none !important;
+  }
+
+  /* 2. Sembunyikan kolom CATATAN (Kolom kesepuluh) */
+  table th:nth-child(10),
+  table td:nth-child(10) {
+    display: none !important;
+  }
+
+  /* 3. Sembunyikan kolom AKSI (Kolom terakhir) */
+  table th:last-child,
+  table td:last-child {
+    display: none !important;
+  }
+
+  /* Tampilkan container penuh untuk hasil cetak */
+  .container {
+    max-width: none !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Pastikan header tabel tetap terlihat */
+  table thead {
+    display: table-header-group;
+  }
+}
