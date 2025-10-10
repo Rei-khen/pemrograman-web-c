@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Masuk - Login</title>
+    <link rel="stylesheet" href="styles/Login.css" />
+    <style>
+      #register-box {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="form-box" id="login-box">
+        <h2>Masuk</h2>
+        <form id="login-form">
+          <div class="input-group">
+            <input type="email" id="login-email" placeholder="Email" required />
+          </div>
+          <div class="input-group password-group">
+            <input
+              type="password"
+              id="login-password"
+              placeholder="Kata Sandi"
+              required
+            />
+            <img
+              src="icons/mata-terbuka.svg"
+              alt="Tampilkan Sandi"
+              class="toggle-password"
+              id="toggle-password"
+            />
+          </div>
+          <button type="submit" class="btn primary">Masuk</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="./scripts/login.js"></script>
+  </body>
+</html>
