@@ -227,6 +227,30 @@ td img.mahasiswa-foto {
   border: 1px solid #eee;
 }
 
+/* ================================= */
+/* FIX: KOLOM AKSI BERTUMPUK */
+/* ================================= */
+
+/* Aturan untuk sel header kolom Aksi */
+table th:last-child {
+  /* Beri lebar minimum yang cukup untuk dua tombol */
+  min-width: 110px;
+  width: 110px;
+}
+
+/* Aturan untuk sel data kolom Aksi */
+table td:last-child {
+  /* Pastikan lebar data sel sama dengan header */
+  min-width: 110px;
+  white-space: nowrap; /* PENTING: Mencegah tombol pindah baris */
+}
+
+/* Pastikan tombol-tombol di dalam sel Aksi berada dalam satu baris */
+table td button {
+  margin-right: 5px; /* Jarak standar antar tombol */
+  display: inline-block; /* Memastikan mereka bersebelahan */
+}
+
 /* kontrol pencarian dan penyortiran */
 .controls-wrapper {
   display: flex;

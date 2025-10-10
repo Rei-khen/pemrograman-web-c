@@ -1,11 +1,41 @@
-Nama,NIM,Jurusan
-"ahmad temola","D121231001","Teknik Informatika"
-"jeki","D121231002","Teknik Informatika"
-"fernando","D121231003","Teknik Informatika"
-"roberto santano","D121231004","Teknik Informatika"
-"yahya ayyash","D121231005","Teknik Informatika"
-"jojo","D131231001","Teknik Lingkungan"
-"ferguso","D131231002","Teknik Lingkungan"
-"Rahmat tahalu","D141231001","Teknik Sipil"
-"Jimi","D141231002","Teknik Sipil"
-"Fernando","D141231003","Teknik Sipil"
+Nama,NIM,Jurusan,Angkatan,Email,IPK,Catatan
+Ahmad Farisi,D121241001,Teknik Informatika,2024,ahmad.farisi@unira.ac.id,3.85,Lulusan terbaik angkatan sebelumnya.
+Bunga Lestari,D122231002,Teknik Sipil,2023,bunga.lestari@unira.ac.id,3.52,Akan mengikuti program pertukaran pelajar di Jepang.
+Cahya Andini,D123221003,Teknik Mesin,2022,cahya.andini@unira.ac.id,3.10,Memimpin tim robotika kampus.
+Dimas Saputra,D124211004,Teknik Perkapalan,2021,dimas.saputra@unira.ac.id,2.90,Pernah cuti selama 1 semester.
+Eka Prasetyo,D125201005,Teknik Elektro,2020,eka.prasetyo@unira.ac.id,2.75,Aktif di organisasi kemahasiswaan.
+Fani Amelia,D126241006,Arsitektur,2024,fani.amelia@unira.ac.id,3.95,IPK Sempurna.
+Gatot Subroto,D127231007,Teknik Geologi,2023,gatot.subroto@unira.ac.id,3.30,Minat pada eksplorasi sumber daya alam.
+Hana Wijaya,D128221008,Teknik Industri,2022,hana.wijaya@unira.ac.id,3.60,Berencana mengambil spesialisasi logistik.
+Iqbal Ramadhan,D129211009,Teknik Kelautan,2021,iqbal.ramadhan@unira.ac.id,2.55,Hobi menyelam.
+Joko Susilo,D130201010,Teknik Sistem Perkapalan,2020,joko.susilo@unira.ac.id,2.80,Rajin bolos.
+Kania Dewi,D131241011,Teknik Perencanaan Wilayah dan Kota,2024,kania.dewi@unira.ac.id,3.70,Pernah bolos 1 bulan.
+Lutfi Hakim,D132231012,Teknik Pertambangan,2023,lutfi.hakim@unira.ac.id,3.00,Membutuhkan mata kuliah tambahan di semester depan.
+Mira Setiawan,D133221013,Teknik Lingkungan,2022,mira.setiawan@unira.ac.id,3.45,Aktif dalam kampanye lingkungan.
+Nanda Rizky,D121211014,Teknik Informatika,2021,nanda.rizky@unira.ac.id,2.35,Fokus pada pengembangan aplikasi mobile.
+Oscar Bayu,D122201015,Teknik Sipil,2020,oscar.bayu@unira.ac.id,2.10,Mengulang mata kuliah Mekanika Tanah.
+Putri Maharani,D123241016,Teknik Mesin,2024,putri.maharani@unira.ac.id,3.88,Mahasiswa berprestasi.
+Qori Ananta,D124231017,Teknik Perkapalan,2023,qori.ananta@unira.ac.id,3.25,Terlambat membayar UKT.
+Risa Nuraini,D125221018,Teknik Elektro,2022,risa.nuraini@unira.ac.id,3.05,Sedang magang di PLN.
+Sandi Maulana,D126211019,Arsitektur,2021,sandi.maulana@unira.ac.id,2.40,IPK minimalis tapi desain bagus.
+Tiara Kusuma,D127201020,Teknik Geologi,2020,tiara.kusuma@unira.ac.id,2.65,Sering terlambat kuliah.
+Umar Hadi,D128241021,Teknik Industri,2024,umar.hadi@unira.ac.id,3.90,Memiliki bisnis sampingan.
+Vina Ayu,D129231022,Teknik Kelautan,2023,vina.ayu@unira.ac.id,3.15,Mendapat beasiswa KIP Kuliah.
+Wayan Putra,D130221023,Teknik Sistem Perkapalan,2022,wayan.putra@unira.ac.id,3.50,Aktif di klub olahraga.
+Xena Zahra,D131211024,Teknik Perencanaan Wilayah dan Kota,2021,xena.zahra@unira.ac.id,3.35,Tukang bolos.
+Yuda Pratama,D132201025,Teknik Pertambangan,2020,yuda.pratama@unira.ac.id,2.20,Memiliki tunggakan di perpustakaan.
+Zaki Abdullah,D133241026,Teknik Lingkungan,2024,zaki.abdullah@unira.ac.id,4.00,IPK sempurna. Lulus cepat.
+Ani Kartika,D121231027,Teknik Informatika,2023,ani.kartika@unira.ac.id,3.68,Anak dari dosen fakultas sebelah.
+Budi Santoso,D122221028,Teknik Sipil,2022,budi.santoso@unira.ac.id,3.33,Sedang aktif di kegiatan BEM.
+Citra Kirana,D123211029,Teknik Mesin,2021,citra.kirana@unira.ac.id,3.02,Mengikuti program Merdeka Belajar.
+Dion Haryono,D124201030,Teknik Perkapalan,2020,dion.haryono@unira.ac.id,2.99,Memiliki sertifikat keahlian welding.
+Erwin Nugroho,D125241031,Teknik Elektro,2024,erwin.nugroho@unira.ac.id,3.77,Sangat rajin dan tekun.
+Fitriani Dewi,D126231032,Arsitektur,2023,fitriani.dewi@unira.ac.id,3.40,Sedang mempersiapkan pameran desain.
+Gita Puspita,D127221033,Teknik Geologi,2022,gita.puspita@unira.ac.id,3.20,Sering melakukan praktikum lapangan.
+Haris Fadillah,D128211034,Teknik Industri,2021,haris.fadillah@unira.ac.id,2.88,Cenderung pasif di kelas.
+Indra Lesmana,D129201035,Teknik Kelautan,2020,indra.lesmana@unira.ac.id,2.15,Mengambil pekerjaan paruh waktu.
+Juwita Sari,D130241036,Teknik Sistem Perkapalan,2024,juwita.sari@unira.ac.id,3.92,Sangat proaktif dalam tugas kelompok.
+Kiko Fernando,D131231037,Teknik Perencanaan Wilayah dan Kota,2023,kiko.fernando@unira.ac.id,3.58,Ketua himpunan mahasiswa.
+Lina Marlina,D132221038,Teknik Pertambangan,2022,lina.marlina@unira.ac.id,3.12,Pernah gagal di mata kuliah kalkulus.
+Miko Alamsyah,D133211039,Teknik Lingkungan,2021,miko.alamsyah@unira.ac.id,3.38,Menguasai 3 bahasa asing.
+Novi Rahma,D121201040,Teknik Informatika,2020,novi.rahma@unira.ac.id,2.05,Berpotensi DO jika tidak diperbaiki nilainya.
