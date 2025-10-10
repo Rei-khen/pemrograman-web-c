@@ -42,6 +42,7 @@ const resetFilterBtn = document.getElementById("reset-filter-btn");
 const fileUpload = document.getElementById("file-upload");
 const downloadBtn = document.getElementById("download-btn");
 const downloadPdfBtn = document.getElementById("download-pdf-btn");
+const downloadJsonBtn = document.getElementById("download-json-btn");
 const logoutBtn = document.getElementById("logout-btn");
 
 // Aksi Batch dan Pagination
@@ -739,6 +740,50 @@ downloadPdfBtn.addEventListener("click", () => {
 
   // Memanggil dialog Print browser
   window.print();
+});
+
+// ------------------- FUNGSI EKSPOR DATA (DOWNLOAD) (JSON) FIXED -------------------
+downloadJsonBtn.addEventListener("click", () => {
+  if (data.length === 0) {
+    alert("Tidak ada data untuk diekspor.");
+    return;
+  }
+
+  // 1. Memetakan data untuk membersihkan properti 'foto'
+  const exportData = data.map((row) => {
+    // Buat salinan objek untuk menghindari modifikasi data asli
+    const newRow = { ...row };
+
+    // LOGIKA BARU: Menyimpan format nama file dummy jika foto ada
+    if (newRow.foto) {
+      // Menggunakan NIM + ekstensi .jpg sebagai nama file dummy
+      newRow.foto = `${newRow.nim}.jpg`;
+    } else {
+      newRow.foto = "Tidak Ada";
+    }
+
+    // Menghapus properti yang tidak perlu (seperti ID internal)
+    delete newRow.id;
+
+    return newRow;
+  });
+
+  // 2. Konversi ke string JSON
+  const jsonString = JSON.stringify(exportData, null, 2); // null, 2 untuk format yang indah (indentasi 2 spasi)
+
+  // 3. Membuat objek Blob dan memicu unduhan
+  const blob = new Blob([jsonString], {
+    type: "application/json;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "data_mahasiswa.json");
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 });
 
 // ------------------- INIT -------------------
