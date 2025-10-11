@@ -30,6 +30,7 @@ const statsSummary = document.getElementById("stats-summary");
 
 const tbody = document.getElementById("tbody");
 const btnReset = document.getElementById("btn-reset");
+const btnSimpan = document.getElementById("btn-simpan");
 
 // Kontrol Baru
 const displayLimit = document.getElementById("display-limit");
@@ -500,6 +501,13 @@ form.addEventListener("submit", async (e) => {
   form.reset();
   elId.value = "";
   elNama.focus();
+  btnSimpan.textContent = "Simpan";
+});
+
+btnReset.addEventListener("click", () => {
+  form.reset();
+  elId.value = "";
+  btnSimpan.textContent = "Simpan";
 });
 
 // ------------------- LOGIKA AUTENTIKASI DAN LOGOUT -------------------
@@ -584,6 +592,8 @@ tbody.addEventListener("click", (e) => {
       elCatatan.value = item.catatan || "";
 
       elNama.focus();
+
+      btnSimpan.textContent = "Update";
 
       // Catatan: Input type="file" (foto) tidak dapat diisi secara programatis.
       return; // Penting untuk menghentikan proses
