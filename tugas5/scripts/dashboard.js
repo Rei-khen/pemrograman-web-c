@@ -76,20 +76,46 @@ function initAngkatanDropdown() {
   }
 }
 
+// GANTI seluruh fungsi initFilterDropdowns() di dashboard.js:
+
 function initFilterDropdowns() {
-  // Jurusan Filter
+  // --- Jurusan Filter ---
+  const selectedJurusanValue = filterJurusan.value; // Ambil nilai yang sedang dipilih
   const uniqueJurusans = getUniqueValues("jurusan").filter((v) => v !== "all");
+
+  // Isi ulang opsi Jurusan
   filterJurusan.innerHTML =
     '<option value="all">Semua Jurusan</option>' +
     uniqueJurusans.map((j) => `<option value="${j}">${j}</option>`).join("");
 
-  // Angkatan Filter
+  // FIX: Kembalikan nilai yang dipilih. Prioritaskan "all" jika itu yang disetel terakhir.
+  if (selectedJurusanValue === "all") {
+    filterJurusan.value = "all"; // Jika disetel ke 'all' (oleh tombol reset), pertahankan 'all'
+  } else if (uniqueJurusans.includes(selectedJurusanValue)) {
+    filterJurusan.value = selectedJurusanValue; // Jika nilai yang dipilih valid, pertahankan nilai
+  } else {
+    filterJurusan.value = "all"; // Jika nilai filter lama tidak valid lagi, kembalikan ke 'all'
+  }
+
+  // --- Angkatan Filter ---
+  const selectedAngkatanValue = filterAngkatan.value;
   const uniqueAngkatans = getUniqueValues("angkatan").filter(
     (v) => v !== "all"
   );
+
+  // Isi ulang opsi Angkatan
   filterAngkatan.innerHTML =
     '<option value="all">Semua Angkatan</option>' +
     uniqueAngkatans.map((a) => `<option value="${a}">${a}</option>`).join("");
+
+  // Kembalikan nilai yang dipilih.
+  if (selectedAngkatanValue === "all") {
+    filterAngkatan.value = "all";
+  } else if (uniqueAngkatans.includes(selectedAngkatanValue)) {
+    filterAngkatan.value = selectedAngkatanValue;
+  } else {
+    filterAngkatan.value = "all";
+  }
 }
 
 // ------------------- FUNGSI FILTER & SORTING -------------------
@@ -324,22 +350,46 @@ deleteAllBtn.addEventListener("click", () => {
   }
 });
 
-// ------------------- EVENT LISTENERS LAIN -------------------
+// ------------------- EVENT LISTENERS LAIN (FINAL) -------------------
 
-// Events yang memicu pembaruan data dan mereset halaman
-[displayLimit, filterJurusan, filterAngkatan].forEach((el) => {
+// 1. Perubahan pada Dropdown Limit saja
+[displayLimit].forEach((el) => {
   el.addEventListener("change", () => {
     currentPage = 1;
     renderData();
   });
 });
 
-[searchBtn, resetFilterBtn].forEach((el) => {
-  el.addEventListener("click", () => {
-    currentPage = 1;
-    renderData();
-  });
+// Tambahkan ini di bagian Event Listeners Lain
+filterJurusan.addEventListener("change", () => {
+  // Di sini kita tidak perlu initFilterDropdowns, kita hanya set value dan render
+  currentPage = 1;
+  renderData();
 });
+
+filterAngkatan.addEventListener("change", () => {
+  currentPage = 1;
+  renderData();
+});
+
+// 2. Tombol Reset Filter: Mereset semua input filter secara eksplisit (YANG HILANG)
+resetFilterBtn.addEventListener("click", () => {
+  searchInput.value = "";
+
+  // PENTING: Set nilai filter ke "all" (sesuai value option filter)
+  filterJurusan.value = "all";
+  filterAngkatan.value = "all";
+
+  currentPage = 1;
+  renderData();
+});
+
+// 3. Tombol Cari (searchBtn) dan Event Enter pada Search Input
+searchBtn.addEventListener("click", () => {
+  currentPage = 1;
+  renderData();
+});
+
 searchInput.addEventListener("keyup", (e) => {
   if (e.key === "Enter") {
     currentPage = 1;
