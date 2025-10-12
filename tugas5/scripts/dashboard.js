@@ -98,7 +98,7 @@ function initFilterDropdowns() {
     '<option value="all">Semua Jurusan</option>' +
     uniqueJurusans.map((j) => `<option value="${j}">${j}</option>`).join("");
 
-  // FIX: Kembalikan nilai yang dipilih. Prioritaskan "all" jika itu yang disetel terakhir.
+  //kembalikan nilai yang dipilih. Prioritaskan "all" jika itu yang disetel terakhir.
   if (selectedJurusanValue === "all") {
     filterJurusan.value = "all"; // Jika disetel ke 'all' (oleh tombol reset), pertahankan 'all'
   } else if (uniqueJurusans.includes(selectedJurusanValue)) {
@@ -362,7 +362,6 @@ deleteAllBtn.addEventListener("click", () => {
 
 // ------------------- EVENT LISTENERS LAIN (FINAL) -------------------
 
-// 1. Perubahan pada Dropdown Limit saja
 [displayLimit].forEach((el) => {
   el.addEventListener("change", () => {
     currentPage = 1;
@@ -370,9 +369,7 @@ deleteAllBtn.addEventListener("click", () => {
   });
 });
 
-// Tambahkan ini di bagian Event Listeners Lain
 filterJurusan.addEventListener("change", () => {
-  // Di sini kita tidak perlu initFilterDropdowns, kita hanya set value dan render
   currentPage = 1;
   renderData();
 });
@@ -382,11 +379,11 @@ filterAngkatan.addEventListener("change", () => {
   renderData();
 });
 
-// 2. Tombol Reset Filter: Mereset semua input filter secara eksplisit (YANG HILANG)
+// 2. Tombol Reset Filter: Mereset semua input filter secara eksplisit
 resetFilterBtn.addEventListener("click", () => {
   searchInput.value = "";
 
-  // PENTING: Set nilai filter ke "all" (sesuai value option filter)
+  // Set nilai filter ke "all" (sesuai value option filter)
   filterJurusan.value = "all";
   filterAngkatan.value = "all";
 
@@ -510,8 +507,7 @@ form.addEventListener("submit", async (e) => {
   btnSimpan.textContent = "Simpan";
 });
 
-// Validasi agar input Angkatan hanya angka antara 1900–2100
-//validasi input, jadi input angkata hanya dari 1980 sampai 2100
+//validasi input, jadi input angkata hanya dari 1956 sampai 2100
 elAngkatan.addEventListener("input", () => {
   const val = elAngkatan.value.trim();
   elAngkatan.classList.remove("input-error");

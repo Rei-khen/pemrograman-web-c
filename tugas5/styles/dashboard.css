@@ -1,5 +1,3 @@
-/* ===== KODE CSS FINAL UNTUK MELEBARKAN FORM (dashboard.css) ===== */
-
 * {
   box-sizing: border-box;
   font-family: Arial, sans-serif;
@@ -7,32 +5,26 @@
 
 body {
   margin: 0;
-  /* KOREKSI: Padding disetel untuk memberi ruang tepi yang wajar (20px) */
   padding: 50px 20px 20px 20px;
   background: #f4f6f9;
   color: #333;
 }
 
-/* ================================= */
-/* KOREKSI: STYLE HEADER APLIKASI */
-/* ================================= */
 .app-header {
   display: flex;
-  justify-content: space-between; /* Pisahkan judul dan tombol */
+  justify-content: space-between;
   align-items: center;
-  padding: 10px 0; /* Memberi sedikit ruang vertikal */
+  padding: 10px 0;
   margin-bottom: 20px;
 }
 
 .app-header h1 {
-  /* Hapus text-align: center yang lama dan set margin agar sejajar */
   text-align: left;
   margin: 0;
-  flex-grow: 1; /* Biarkan judul mengambil ruang sebanyak mungkin */
+  flex-grow: 1;
 }
 
 .container {
-  /* KOREKSI: Meningkatkan lebar maksimum container (kembali ke 800px) */
   max-width: 1500px;
   margin: 0 auto;
 }
@@ -62,7 +54,7 @@ form div {
   margin-bottom: 15px;
 }
 
-/* === GAYA INPUT ANGKATAN (AGAR SAMA DENGAN INPUT LAIN) === */
+/* form angkatan */
 #angkatan {
   width: 100%;
   padding: 8px 10px;
@@ -103,7 +95,7 @@ input.input-error {
   background-color: #fff5f5;
 }
 
-/* KONSOLIDASI: Gaya untuk SEMUA input, select, dan textarea */
+/* Gaya untuk SEMUA input, select, dan textarea */
 input[type="text"],
 input[type="email"],
 input[type="number"],
@@ -157,12 +149,9 @@ button {
   background: #7f8c8d;
 }
 
-/* ================================= */
-/* GAYA STATISTIK RINGKASAN (PENYESUAIAN WARNA) */
-/* ================================= */
+/* statistikd data */
 #stats-summary {
-  /* Menggunakan warna yang lebih seragam dengan header/judul */
-  background: #3498db; /* Biru cerah, sama dengan header tabel */
+  background: #3498db;
   color: #fff;
   padding: 15px 20px;
   border-radius: 8px;
@@ -172,28 +161,27 @@ button {
   font-weight: bold;
 }
 
-/* 1. Rata IPK (Dipaksa ke Kanan) */
+/* rata-rata ipk */
 #stats-summary .stat-rata-ipk {
   float: right;
   padding-left: 15px;
 }
 
-/* 2. Total (Di Kiri) */
+/* total data */
 #stats-summary .stat-total {
   display: inline-block;
   padding-right: 15px;
 }
 
-/* 3. Jurusan (Pindah ke Baris Baru & Menguasai Lebar) */
+/* daftar jurusan yang ada */
 #stats-summary .stat-jurusan {
   clear: both;
   width: 100%;
   margin-top: 10px;
-  /* Menggunakan Flexbox di dalam Jurusan untuk mengatur setiap item */
   display: flex;
   flex-wrap: wrap;
   gap: 5px 15px;
-  line-height: 1.5; /* Jarak baris jika wrapping */
+  line-height: 1.5;
 }
 
 /* Mengatur tampilan setiap Jurusan: Jumlah */
@@ -252,7 +240,7 @@ td button[data-del]:hover {
   background: #c0392b;
 }
 
-/* Memastikan Foto di Tabel Kecil */
+/* memastikan Foto di Tabel Kecil */
 td img.mahasiswa-foto {
   width: 50px;
   height: 50px;
@@ -261,28 +249,21 @@ td img.mahasiswa-foto {
   border: 1px solid #eee;
 }
 
-/* ================================= */
-/* FIX: KOLOM AKSI BERTUMPUK */
-/* ================================= */
-
-/* Aturan untuk sel header kolom Aksi */
+/* aturan untuk sel header kolom Aksi */
 table th:last-child {
-  /* Beri lebar minimum yang cukup untuk dua tombol */
   min-width: 110px;
   width: 110px;
 }
 
 /* Aturan untuk sel data kolom Aksi */
 table td:last-child {
-  /* Pastikan lebar data sel sama dengan header */
   min-width: 110px;
-  white-space: nowrap; /* PENTING: Mencegah tombol pindah baris */
+  white-space: nowrap; /* mencegah tombol pindah baris */
 }
 
-/* Pastikan tombol-tombol di dalam sel Aksi berada dalam satu baris */
 table td button {
-  margin-right: 5px; /* Jarak standar antar tombol */
-  display: inline-block; /* Memastikan mereka bersebelahan */
+  margin-right: 5px;
+  display: inline-block;
 }
 
 /* kontrol pencarian dan penyortiran */
@@ -348,7 +329,6 @@ table td button {
 }
 
 /* Menyembunyikan input file standar */
-/* Menyembunyikan input file standar HANYA yang ada di dalam .file-controls */
 .file-controls input[type="file"] {
   display: none;
 }
@@ -389,23 +369,19 @@ table td button {
   justify-content: flex-start;
 }
 
-/* ================================= */
-/* KOREKSI: STRUKTUR FORM DUA KOLOM */
-/* ================================= */
-
 /* Container utama di dalam form yang menampung input */
 .form-grid {
   display: flex;
-  flex-wrap: wrap; /* Memungkinkan item untuk pindah baris */
-  justify-content: space-between; /* Memberi ruang di antara kolom */
-  gap: 15px; /* Jarak vertikal dan horizontal antar form-group */
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
 }
 
 /* Setiap grup label + input */
 .form-group {
   /* Setiap kolom mengambil hampir 50% lebar */
   flex: 1 1 calc(50% - 10px);
-  margin-bottom: 0; /* Hapus margin lama dari form div */
+  margin-bottom: 0;
 }
 
 /* Form group yang harus membentang penuh (misalnya Nama, Catatan, Tombol) */
@@ -413,7 +389,6 @@ table td button {
   flex: 1 1 100%;
 }
 
-/* Mengganti styling lama untuk form div */
 form div {
   /* Hapus margin-bottom yang lama yang mengganggu struktur Flexbox */
   margin-bottom: 0;
@@ -423,20 +398,16 @@ form div {
   margin-bottom: 15px;
 }
 
-/* KOREKSI: Pastikan input, select, textarea tetap mengambil 100% dari form-group mereka */
+/*pastikan input, select, textarea tetap mengambil 100% dari form-group mereka */
 input[type="text"],
 input[type="email"],
 input[type="number"],
 select,
 textarea {
   width: 100%;
-  /* Pastikan padding dan border tetap seperti sebelumnya */
-  /* ... */
 }
 
-/* ... (Gaya CSS yang sudah ada) ... */
-
-/* GAYA KHUSUS UNTUK TOMBOL HAPUS */
+/* tombol hapus */
 .delete-button {
   background: #e74c3c !important;
   color: #fff !important;
@@ -455,7 +426,7 @@ textarea {
   padding: 10px 0;
 }
 
-/* GAYA UNTUK PAGINATION */
+/* gaya untuk pagination */
 #pagination-controls button {
   padding: 8px 12px;
   margin: 0 3px;
@@ -476,9 +447,7 @@ th.sortable {
   cursor: pointer;
 }
 
-/* Menghapus gaya lama untuk search-container karena sudah diganti */
 .controls-wrapper {
-  /* ... (tetap sama) ... */
   display: flex;
   flex-wrap: wrap;
   gap: 15px; /* Jarak antar filter group */
@@ -492,19 +461,17 @@ th.sortable {
 }
 
 .controls-wrapper .filter-group select {
-  width: auto; /* Agar select tidak membentang penuh */
+  width: auto; /* agar select tidak membentang penuh */
 }
 
 .controls-wrapper .search-container {
-  flex: 2 1 300px; /* Memberi ruang lebih untuk search */
+  flex: 2 1 300px; /* memberi ruang lebih untuk search */
   margin-right: 0;
 }
 
-/* ================================= */
-/* MEDIA QUERY KHUSUS PRINT (FINAL FIX) */
-/* ================================= */
+/* untuk tampilan print */
 @media print {
-  /* Sembunyikan SEMUA elemen non-tabel, TERMASUK JUDUL TABEL */
+  /* sembunyikan semua element non tabel */
   .app-header,
   .file-controls,
   form,
@@ -512,36 +479,35 @@ th.sortable {
   .controls-wrapper,
   .table-footer-controls,
   #stats-header {
-    /* <-- BARIS KRUSIAL DITAMBAHKAN */
     display: none !important;
   }
 
-  /* 1. Sembunyikan kolom CHECKBOX (Kolom pertama) */
+  /* Sembunyikan kolom CHECKBOX (Kolom pertama) */
   table th:nth-child(1),
   table td:nth-child(1) {
     display: none !important;
   }
 
-  /* 2. Sembunyikan kolom CATATAN (Kolom kesepuluh) */
+  /*Sembunyikan kolom CATATAN (Kolom kesepuluh) */
   table th:nth-child(10),
   table td:nth-child(10) {
     display: none !important;
   }
 
-  /* 3. Sembunyikan kolom AKSI (Kolom terakhir) */
+  /*Sembunyikan kolom AKSI (Kolom terakhir) */
   table th:last-child,
   table td:last-child {
     display: none !important;
   }
 
-  /* Tampilkan container penuh untuk hasil cetak */
+  /* tampilkan container penuh untuk hasil cetak */
   .container {
     max-width: none !important;
     margin: 0;
     padding: 0;
   }
 
-  /* Pastikan header tabel tetap terlihat */
+  /* pastikan header tabel tetap terlihat */
   table thead {
     display: table-header-group;
   }
