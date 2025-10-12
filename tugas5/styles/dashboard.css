@@ -62,11 +62,45 @@ form div {
   margin-bottom: 15px;
 }
 
+/* === GAYA INPUT ANGKATAN (AGAR SAMA DENGAN INPUT LAIN) === */
+#angkatan {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+#angkatan:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* Jika ada error */
+#angkatan.input-error {
+  border-color: #e74c3c;
+  background-color: #fff5f5;
+}
+
 label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
   color: #555;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 4px;
+  display: block;
+}
+
+input.input-error {
+  border-color: #e74c3c;
+  background-color: #fff5f5;
 }
 
 /* KONSOLIDASI: Gaya untuk SEMUA input, select, dan textarea */

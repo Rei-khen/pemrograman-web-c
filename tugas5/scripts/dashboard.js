@@ -27,6 +27,7 @@ const elIpk = document.getElementById("ipk");
 const elFoto = document.getElementById("foto");
 const elCatatan = document.getElementById("catatan");
 const statsSummary = document.getElementById("stats-summary");
+const elAngkatanError = document.getElementById("angkatan-error");
 
 const tbody = document.getElementById("tbody");
 const btnReset = document.getElementById("btn-reset");
@@ -65,15 +66,14 @@ function getUniqueValues(key) {
 function initAngkatanDropdown() {
   const startYear = 2000;
   const endYear = 2025;
-  if (!elAngkatan) return;
-  // Hapus opsi lama sebelum menambahkan yang baru
-  elAngkatan.innerHTML =
-    '<option value="" disabled selected>--- Pilih Angkatan ---</option>';
+  const dataList = document.getElementById("angkatan-list");
+  if (!dataList) return;
+
+  dataList.innerHTML = ""; // bersihkan dulu
   for (let year = endYear; year >= startYear; year--) {
     const option = document.createElement("option");
     option.value = year;
-    option.textContent = year;
-    elAngkatan.appendChild(option);
+    dataList.appendChild(option);
   }
 }
 
@@ -502,6 +502,27 @@ form.addEventListener("submit", async (e) => {
   elId.value = "";
   elNama.focus();
   btnSimpan.textContent = "Simpan";
+});
+
+// Validasi agar input Angkatan hanya angka antara 1900–2100
+elAngkatan.addEventListener("input", () => {
+  const val = elAngkatan.value.trim();
+  elAngkatan.classList.remove("input-error");
+  elAngkatanError.textContent = "";
+
+  if (val === "") return;
+
+  if (!/^\d+$/.test(val)) {
+    elAngkatanError.textContent = "Angkatan hanya boleh berupa angka.";
+    elAngkatan.classList.add("input-error");
+    return;
+  }
+
+  const year = Number(val);
+  if (year < 1900 || year > 2100) {
+    elAngkatanError.textContent = "Masukkan tahun antara 1900 hingga 2100.";
+    elAngkatan.classList.add("input-error");
+  }
 });
 
 btnReset.addEventListener("click", () => {

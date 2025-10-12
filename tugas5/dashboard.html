@@ -41,9 +41,14 @@
           </div>
           <div class="form-group">
             <label for="angkatan">Angkatan:</label>
-            <select id="angkatan" required>
-              <option value="" disabled selected>--- Pilih Angkatan ---</option>
-            </select>
+            <input
+              list="angkatan-list"
+              id="angkatan"
+              placeholder="Ketik atau pilih angkatan"
+              required
+            />
+            <datalist id="angkatan-list"></datalist>
+            <small id="angkatan-error" class="error-message"></small>
           </div>
 
           <div class="form-group">
