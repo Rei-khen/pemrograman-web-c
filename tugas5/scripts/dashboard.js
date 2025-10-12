@@ -1,16 +1,24 @@
 // ------------------- PERSISTENSI DATA -------------------
+
+//key untuk ambil data mahasiswa di local storage browser
 const STORAGE_KEY = "crud_mahasiswa";
+//key untuk ambil status login dari user, kalau tidak ada maka diarahkan ke halaman login atau index.html
 const AUTH_STATUS_KEY = "auth_status";
 
+//ambil data dari local storage
 const loadData = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+//simpan array data terbaru ke local storage
 const saveData = (list) =>
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 
 // ------------------- STATE GLOBAL -------------------
+//data utama mahasiswa
 let data = loadData();
+//logic untuk autoincrement ID, ambil id terbesar + 1
 let autoId = data.reduce((m, o) => Math.max(m, o.id), 0) + 1;
 
-// STATE UNTUK FILTER DAN PAGINATION
+//state untuk filter dan pagination
 let currentPage = 1;
 let rowsPerPage = 10;
 let currentSort = { key: "id", direction: "asc" }; // Default sort by ID ascending
@@ -33,7 +41,7 @@ const tbody = document.getElementById("tbody");
 const btnReset = document.getElementById("btn-reset");
 const btnSimpan = document.getElementById("btn-simpan");
 
-// Kontrol Baru
+// filter, cari, eksport
 const displayLimit = document.getElementById("display-limit");
 const filterJurusan = document.getElementById("filter-jurusan");
 const filterAngkatan = document.getElementById("filter-angkatan");
@@ -47,7 +55,7 @@ const downloadPdfBtn = document.getElementById("download-pdf-btn");
 const downloadJsonBtn = document.getElementById("download-json-btn");
 const logoutBtn = document.getElementById("logout-btn");
 
-// Aksi Batch dan Pagination
+//aksi batch dan pagination
 const selectAllCheckbox = document.getElementById("select-all-checkbox");
 const deleteSelectedBtn = document.getElementById("delete-selected-btn");
 const selectBatchBtn = document.getElementById("select-batch-btn");
@@ -58,11 +66,13 @@ const sortIpk = document.getElementById("sort-ipk");
 
 // ------------------- FUNGSI UTILITY -------------------
 
+//mengambil nilai unik dari kolom jurusan atau angkatan untuk mengisi filter
 function getUniqueValues(key) {
   const values = data.map((item) => item[key]);
   return ["all", ...new Set(values)].filter((v) => v); // Filter nilai kosong
 }
 
+//untuk memasukkan pilihan angkatan dari 2000 sampai 2005, jadi tidak perlu di tulis manual di html
 function initAngkatanDropdown() {
   const startYear = 2000;
   const endYear = 2025;
@@ -77,14 +87,13 @@ function initAngkatanDropdown() {
   }
 }
 
-// GANTI seluruh fungsi initFilterDropdowns() di dashboard.js:
-
+//menambahkan dropdown filter jurusan dan angkatan dengan nilai unik dari data
 function initFilterDropdowns() {
   // --- Jurusan Filter ---
   const selectedJurusanValue = filterJurusan.value; // Ambil nilai yang sedang dipilih
   const uniqueJurusans = getUniqueValues("jurusan").filter((v) => v !== "all");
 
-  // Isi ulang opsi Jurusan
+  //isi ulang opsi jurusan
   filterJurusan.innerHTML =
     '<option value="all">Semua Jurusan</option>' +
     uniqueJurusans.map((j) => `<option value="${j}">${j}</option>`).join("");
@@ -287,7 +296,7 @@ function renderData() {
   renderTable(list);
   initFilterDropdowns();
 
-  // PENTING: Panggil fungsi statistik di sini
+  //Panggil fungsi statistik di sini
   updateStatsSummary();
 }
 
@@ -406,8 +415,6 @@ sortIpk.addEventListener("click", () => {
 });
 
 // ------------------- FORM SUBMIT (CRUD Logic - Pastikan memanggil renderData()) -------------------
-// ... (Logika form submit CRUD tetap sama, tetapi di akhir harus memanggil renderData() )
-// NOTE: Saya menggunakan async/await di fungsi ini, pastikan Anda menggunakan versi terbaru.
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -436,7 +443,7 @@ form.addEventListener("submit", async (e) => {
     );
   }
 
-  // LOGIKA VALIDASI UKURAN FOTO
+  //logika untuk validasi ukuran foto (maks 5mb)
   let fotoBase64 = "";
   const file = elFoto.files[0];
   if (file) {
@@ -455,7 +462,7 @@ form.addEventListener("submit", async (e) => {
     });
   }
 
-  // LOGIKA VALIDASI PENCEGAHAN NIM DUPLIKAT
+  //untuk mencegah nimm yang duplikat
   let isNIMExist;
   if (idVal) {
     isNIMExist = data.some(
@@ -496,8 +503,7 @@ form.addEventListener("submit", async (e) => {
   }
 
   saveData(data);
-  // PENTING: Panggil renderData() yang baru
-  renderData();
+  renderData(); // supaya data dirender
   form.reset();
   elId.value = "";
   elNama.focus();
@@ -505,6 +511,7 @@ form.addEventListener("submit", async (e) => {
 });
 
 // Validasi agar input Angkatan hanya angka antara 1900–2100
+//validasi input, jadi input angkata hanya dari 1980 sampai 2100
 elAngkatan.addEventListener("input", () => {
   const val = elAngkatan.value.trim();
   elAngkatan.classList.remove("input-error");
@@ -519,8 +526,8 @@ elAngkatan.addEventListener("input", () => {
   }
 
   const year = Number(val);
-  if (year < 1900 || year > 2100) {
-    elAngkatanError.textContent = "Masukkan tahun antara 1900 hingga 2100.";
+  if (year < 1956 || year > 2100) {
+    elAngkatanError.textContent = "Masukkan tahun antara 1956 hingga 2100.";
     elAngkatan.classList.add("input-error");
   }
 });
@@ -554,10 +561,10 @@ function updateStatsSummary() {
     return;
   }
 
-  // 1. Total Data
+  // 1. total Data
   const totalMahasiswa = data.length;
 
-  // 2. Rata-rata IPK
+  // 2. tata-rata IPK
   const validIpkData = data.filter((row) => !isNaN(Number(row.ipk)));
   const totalIpk = validIpkData.reduce((sum, row) => sum + Number(row.ipk), 0);
   const rataIpk =
@@ -565,21 +572,21 @@ function updateStatsSummary() {
       ? (totalIpk / validIpkData.length).toFixed(2)
       : "0.00";
 
-  // 3. Jumlah Mahasiswa per Jurusan
+  // 3. jumlah Mahasiswa per Jurusan
   const prodiCounts = data.reduce((acc, row) => {
     const prodi = row.jurusan || "Tidak Diketahui";
     acc[prodi] = (acc[prodi] || 0) + 1;
     return acc;
   }, {});
 
-  // Buat HTML untuk setiap Jurusan, dipisahkan oleh |
+  // buat HTML untuk setiap Jurusan, dipisahkan oleh |
   const prodiSummaryHtml = Object.entries(prodiCounts)
     .map(
       ([prodi, count]) => `<span class="prodi-item">${prodi}: ${count}</span>`
     )
     .join(" | ");
 
-  // Render HTML: Gunakan struktur terpisah untuk mengatur posisi
+  // render HTML: Gunakan struktur terpisah untuk mengatur posisi
   statsSummary.innerHTML = `
     <div class="stat-rata-ipk">Rata IPK: ${rataIpk}</div>
     
@@ -602,7 +609,8 @@ tbody.addEventListener("click", (e) => {
 
     const item = data.find((x) => x.id === idNum);
     if (item) {
-      // Mengisi kembali Form untuk diedit
+      // mengisi kembali Form untuk diedit
+      //jadi data yang dipilih akan tampil di form
       elId.value = item.id;
       elNama.value = item.nama;
       elNim.value = item.nim;
@@ -616,8 +624,7 @@ tbody.addEventListener("click", (e) => {
 
       btnSimpan.textContent = "Update";
 
-      // Catatan: Input type="file" (foto) tidak dapat diisi secara programatis.
-      return; // Penting untuk menghentikan proses
+      return; // untuk menghentikan proses
     }
   }
 
@@ -630,10 +637,9 @@ tbody.addEventListener("click", (e) => {
       data = data.filter((x) => x.id !== idNum);
       saveData(data);
 
-      // PENTING: Panggil renderData() untuk refresh tampilan
-      renderData();
+      renderData(); //untuk refresh tampilan
       alert("Data berhasil dihapus.");
-      return; // Penting untuk menghentikan proses
+      return; //untuk menghentikan proses
     }
   }
 });
@@ -645,7 +651,7 @@ downloadBtn.addEventListener("click", () => {
     return;
   }
 
-  // UPDATE HEADER untuk SEMUA KOLOM BARU
+  //update header untuk semua kolom baru
   let csvContent = "Nama,NIM,Jurusan,Angkatan,Email,IPK,Catatan\n";
 
   // UPDATE DATA
@@ -692,7 +698,7 @@ fileUpload.addEventListener("change", (e) => {
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
 
-        // Array yang berisi nama header yang diekspektasikan (HARUS SAMA PERSIS urutannya)
+        // Array yang berisi nama header yang diekspektasikan, harus sama persis urutannya
         const expectedHeaders = [
           "Nama",
           "NIM",
@@ -703,8 +709,6 @@ fileUpload.addEventListener("change", (e) => {
           "Catatan",
         ];
 
-        // Menggunakan opsi header: 1 untuk mendapatkan array of arrays (bukan array of objects)
-        // Ini menghindari masalah parsing header otomatis.
         const dataAsArray = XLSX.utils.sheet_to_json(sheet, {
           header: 1,
           raw: false, // Raw: false agar format tanggal/angka otomatis diolah
@@ -832,12 +836,12 @@ downloadJsonBtn.addEventListener("click", () => {
 
   // 1. Memetakan data untuk membersihkan properti 'foto'
   const exportData = data.map((row) => {
-    // Buat salinan objek untuk menghindari modifikasi data asli
+    // buat salinan objek untuk menghindari modifikasi data asli
     const newRow = { ...row };
 
-    // LOGIKA BARU: Menyimpan format nama file dummy jika foto ada
+    // menyimpan format nama file dummy jika foto ada
     if (newRow.foto) {
-      // Menggunakan NIM + ekstensi .jpg sebagai nama file dummy
+      // menggunakan NIM + ekstensi .jpg sebagai nama file dummy
       newRow.foto = `${newRow.nim}.jpg`;
     } else {
       newRow.foto = "Tidak Ada";
@@ -849,10 +853,10 @@ downloadJsonBtn.addEventListener("click", () => {
     return newRow;
   });
 
-  // 2. Konversi ke string JSON
+  // 2. konversi ke string JSON
   const jsonString = JSON.stringify(exportData, null, 2); // null, 2 untuk format yang indah (indentasi 2 spasi)
 
-  // 3. Membuat objek Blob dan memicu unduhan
+  // 3. membuat objek Blob dan memicu unduhan
   const blob = new Blob([jsonString], {
     type: "application/json;charset=utf-8;",
   });
@@ -869,5 +873,5 @@ downloadJsonBtn.addEventListener("click", () => {
 
 // ------------------- INIT -------------------
 initAngkatanDropdown();
-// PENTING: Panggil renderData() di INIT
+//Panggil renderData() di INIT
 renderData();
